@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 description = '''Simulate a coalescent within the history of Abies expansion.'''
 
+#this is cleaner version
 
 import msprime
 import numpy as np
@@ -17,7 +18,7 @@ parser.add_argument("--sample_coords", "-s", type=str, dest="sample_coords_file"
 parser.add_argument("--migr_mat", "-m", type=str, dest="migr_mat_file", required=True,
                     help="name of file containing migration matrix")
 parser.add_argument("--adj_mat", "-am", type=str, dest="adj_mat_file", required=True,
-                    help="name of file containing adjacency matrix")                    
+                    help="name of file containing adjacency matrix")
 parser.add_argument("--basedir", "-o", type=str, dest="basedir", required=True,
                     help="name of directory to save output files to.")
 parser.add_argument("--dt", "-d", type=float, dest="dt", required=True,
@@ -28,11 +29,11 @@ parser.add_argument("--mut", "-u", type=float, dest="mut", required=True,
                     help="total mutation rate")
 parser.add_argument("--num_reps", "-n", type=float, dest="num_reps", default=1,
                     help="number of replicates")
-parser.add_argument("--logfile", "-g", type=float, dest="logfile", 
+parser.add_argument("--logfile", "-g", type=float, dest="logfile",
                     help="name of log file")
-parser.add_argument("--generation_time", "-gt", type=int, dest="gen_time", 
+parser.add_argument("--generation_time", "-gt", type=int, dest="gen_time",
                     help="generation time")
-parser.add_argument("--row_number", "-rn", type=int, dest="row_num", 
+parser.add_argument("--row_number", "-rn", type=int, dest="row_num",
                     help="number of rows in the originical grid")
 parser.add_argument("--ancpop_size", "-aps",  type=int,nargs='+',dest="ancpop_size", required=True,
                     help="list of the sizes of the ancestral populations")
@@ -42,9 +43,9 @@ parser.add_argument("--ancpop_list", "-apl", type=str, dest="ancpop_list", requi
 #                    help="list of the locations of the ancestral populations")
 #parser.add_argument("--ancpop_time", "-apt", type=int, dest="ancpop_time", required=True,
 #                    help="the time while several ancestral populations exist")
-parser.add_argument("--scale", "-sc", type=int, dest="sc", 
+parser.add_argument("--scale", "-sc", type=int, dest="sc",
                     help="scaling factor")
-parser.add_argument("--serial", "-serial", type=int, dest="serial", 
+parser.add_argument("--serial", "-serial", type=int, dest="serial",
                     help="serial number")
 
 
@@ -117,7 +118,7 @@ def read_coords():
         idlist.append(id)
         celllist.append(int(cell))
     return poplist, idlist, celllist
-    
+
 
 #######################################################################################
 #######################################################################################
@@ -132,10 +133,10 @@ ADJ = read_migration_matrix("{}.tsv".format(am))
 n = M.shape[0]
 
 
-# the extended migration includes the ancestral populations, but the migration rate 
-# to and from these cells are 0. This is only used for the simulate() function 
+# the extended migration includes the ancestral populations, but the migration rate
+# to and from these cells are 0. This is only used for the simulate() function
 # in every other case the original migration matrix is used together with the population sizes
-# without the ancestral ones. 
+# without the ancestral ones.
 
 
 M_ext=M
@@ -148,10 +149,10 @@ for i in range(anc_num):
 n_ext=M_ext.shape[0]
 
 # n is the number of demes in total on the grid
-ngens = tree_num.shape[0] 
+ngens = tree_num.shape[0]
 
 
-file1 = "ET_pairwise.mig{}.ancpopnum{}.ancpopsize{}.dem_{}.dt{}.serial{}.tsv".format(m,anc_num,a_s[0],ps,dt,args.serial) 
+file1 = "ET_pairwise.mig{}.ancpopnum{}.ancpopsize{}.dem_{}.dt{}.serial{}.tsv".format(m,anc_num,a_s[0],ps,dt,args.serial)
 
 
 
@@ -198,7 +199,7 @@ sd=len(sampled_demes)
 
 
 
-subpops=[]	
+subpops=[]
 counter=0
 for i in range(len(ndip)):
     if ndip[i]!=0:
@@ -211,7 +212,7 @@ for i in range(len(ndip)):
 population_configurations=[]
 demographic_events = []
 
-	
+
 tree_origi=[0 for _ in range(n_ext)]
 tree_origi_last=[0 for _ in range(n_ext)]
 
@@ -226,8 +227,8 @@ for k in range(n):
 
 population_configurations = [
     msprime.PopulationConfiguration(sample_size=ndip[k],
-        initial_size = max(MIN_SIZE, tree_origi[k]), 
-        growth_rate=0) for k in range(n_ext) ]	
+        initial_size = max(MIN_SIZE, tree_origi[k]),
+        growth_rate=0) for k in range(n_ext) ]
 
 
 #########################################################################################
@@ -271,29 +272,29 @@ else:
 popT=pT.sum(axis=1)
 #popT[np.isnan(popT)] = 0.0
 #print(popT)
-			    
+
 for i in range(n):
     if tree_num[ngens-2,i]==0 and tree_num[ngens-1,i]!=0:
 	    for j in range(n):
 	        if ADJ[i,j]!=0:
 	            demographic_events.append(msprime.PopulationParametersChange(
-			        time=dt/args.gen_time, initial_size=max(MIN_SIZE, tree_num[ngens-2,j]), 
-			            population_id=j, growth_rate=0))	
-			            	            
+			        time=dt/args.gen_time, initial_size=max(MIN_SIZE, tree_num[ngens-2,j]),
+			            population_id=j, growth_rate=0))
+
 	            if popT[i]==0.0:
 	                prop=0
 	            else:
 	                prop=tree_num[ngens-2,j]/popT[i]
-	                
+
 	            demographic_events.append(msprime.MassMigration(
                     time=dt/args.gen_time, source=i, destination=j, proportion=min(1,prop)))
-                
+
 	            demographic_events.append(msprime.PopulationParametersChange(
-			        time=dt/args.gen_time, initial_size=max(MIN_SIZE, tree_num[ngens-2,i]), 
+			        time=dt/args.gen_time, initial_size=max(MIN_SIZE, tree_num[ngens-2,i]),
 			            population_id=i, growth_rate=0))
     else:
 	    demographic_events.append(msprime.PopulationParametersChange(
-			        time=dt/args.gen_time, initial_size=max(MIN_SIZE, tree_num[ngens-2,i]), 
+			        time=dt/args.gen_time, initial_size=max(MIN_SIZE, tree_num[ngens-2,i]),
 			            population_id=i, growth_rate=0))
 
 
@@ -322,14 +323,14 @@ for i in range(n):
     for j in range(n):
         if tree_num[ngens-2,j]==0:
             bwM_ext[i,j]=0
-            
-            
+
+
 ################################### ITERATION ###########################################
 #########################################################################################
 
 
-# we need to go through all the timesteps, the first (above) and the last are treated separately, 
-# between there is a while loop: 
+# we need to go through all the timesteps, the first (above) and the last are treated separately,
+# between there is a while loop:
 # x is the tree numbers for all the cells now, x_next is the previous generation
 # migration matrix is made the same way as before
 # mass migrations and population size updates work the same way
@@ -352,16 +353,16 @@ while t>=1:
     N=(M.T*x_next)
     mig=[]
     for i in range(n):
-        mig.append([x[i]])    
-    
-    
+        mig.append([x[i]])
+
+
     migrate=M[0,1]
-    
+
     if migrate==0:
         pT=(M.T*x_next)
     else:
         pT=(M.T*x_next/migrate)
-    
+
     popT=pT.sum(axis=1)
 
 
@@ -370,23 +371,23 @@ while t>=1:
 	        for j in range(n):
 	            if ADJ[i,j]!=0:
 	                demographic_events.append(msprime.PopulationParametersChange(
-			            time=t_ago/args.gen_time, initial_size=max(MIN_SIZE, x_next[j]), 
+			            time=t_ago/args.gen_time, initial_size=max(MIN_SIZE, x_next[j]),
 			            population_id=j, growth_rate=0))
-	                
+
 	                if popT[i]==0.0:
 	                    prop=0
 	                else:
 	                    prop=x_next[j]/popT[i]
-	                
+
 	                demographic_events.append(msprime.MassMigration(
                         time=t_ago/args.gen_time, source=i, destination=j, proportion=min(1, prop)))
-					
+
 	                demographic_events.append(msprime.PopulationParametersChange(
-			            time=t_ago/args.gen_time, initial_size=max(MIN_SIZE, x_next[i]), 
+			            time=t_ago/args.gen_time, initial_size=max(MIN_SIZE, x_next[i]),
 			            population_id=i, growth_rate=0))
         else:
 	        demographic_events.append(msprime.PopulationParametersChange(
-			    time=t_ago/args.gen_time, initial_size=max(MIN_SIZE, x_next[i]), 
+			    time=t_ago/args.gen_time, initial_size=max(MIN_SIZE, x_next[i]),
 			    population_id=i, growth_rate=0))
 
 
@@ -406,13 +407,13 @@ while t>=1:
 
     x=x_next
     BM_last=BM
-    t-=1 
+    t-=1
 
 ################################# LAST TIMESTEP #########################################
 #########################################################################################
 
 
-    
+
 N=(M.T*x)
 mig=[]
 for i in range(n):
@@ -432,7 +433,7 @@ for i in range(n):
         if BM[i,j]!=BM_last[i,j]:
             demographic_events.append(msprime.MigrationRateChange(
                     time=dt * (ngens -1- t)/args.gen_time, rate=BM[i,j], matrix_index=(i, j)))
-    
+
 
 
 
@@ -446,7 +447,7 @@ for i in range(n):
 
 for i in range(anc_num):
     demographic_events.append(msprime.PopulationParametersChange(
-    time=dt * (ngens- t)/args.gen_time, initial_size=a_s[i], 
+    time=dt * (ngens- t)/args.gen_time, initial_size=a_s[i],
 	population_id=n+i, growth_rate=0))
 
 
@@ -511,7 +512,6 @@ for i in range(lP):
             result[i,j]=(aa.tmrca(subpops[i][1],subpops[j][1])+aa.tmrca(subpops[i][0],subpops[j][0])+aa.tmrca(subpops[i][0],subpops[j][1])+aa.tmrca(subpops[i][1],subpops[j][0]))/4
         else:
             result[i,j]=aa.tmrca(subpops[i][0],subpops[j][1])
-            
+
 
 np.savetxt(file1, result)
-
