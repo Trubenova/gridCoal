@@ -196,51 +196,48 @@ def extendMigMatrix(M):  #this is probably not necessary, only should be used at
 ################# I think this compares two time points. If the past one is empty and the never one is not, it mass migrate
 #if it is not empty, it does param change. What is BM used for?
 
-def DefinePopParamForStep1(M, ADJ):
+def DefinePopParamForStep1(M, ADJ):  #this is time step between presence and the recent past
     if M[0,1]==0:    #if migration is 0... this is only used for mass migration
         pT=(M.T*tree_num[ngens-2])
     else:
         #pT=(M.T*tree_num[ngens-2]/M[0,1])
         pT=ADJ.T*tree_num[ngens-2]
 
-    popT=pT.sum(axis=1)
-    print ('starting step 1')
-    print (ADJ.T)
-    print (tree_num[ngens-2])
-    print ('pt', pT)
+    popT=pT.sum(axis=1)  #this generate a vector - for each cell it contains sum of all neighbours in the penultimate step. 
     
-    #print ('pt2', pT2)
+    print ('starting step 1')
     
     #popT[np.isnan(popT)] = 0.0
-    print (popT)
     print ('DefinePopParamForStep1 running')
     for i in range(n):
         if tree_num[ngens-2,i]==0 and tree_num[ngens-1,i]!=0:
-            print ('colonisation encountered')
+            print ('colonisation encountered')  #this means that a cell previously empty is now colonised. 
             for j in range(n):
-                if ADJ[i,j]!=0:  # ok this goes through all neighbouring cells, then makes popu. param change
+                if ADJ[i,j]!=0:  # ok this goes through all neighbouring cells, then makes popu. param change, which is identical to the one ourside of the colonisation check. 
                     demographic_events.append(msprime.PopulationParametersChange(
                         time=dt/genTime, initial_size=max(minSize, tree_num[ngens-2,j]),
                             population_id=j, growth_rate=0))
 
-                    if popT[i]==0.0:  # and then in compares proportion  #here it would break if my example had zeros. 
-                        prop=0
+                    if popT[i]==0.0:  # and then in compares proportion 
+                        prop=0  #this is where sad stuff happens. Means that a lineage gets stuck somewhere until the end of time. 
+                        print ('sad stuff hapenning')
                     
                     else:
                         prop=tree_num[ngens-2,j]/popT[i]
-
+#what would happen here if we exchanged the order of stuff hapenning? 
                     demographic_events.append(msprime.MassMigration(
                         time=dt/genTime, source=i, destination=j, proportion=min(1,prop)))
 
                     demographic_events.append(msprime.PopulationParametersChange(
                         time=dt/genTime, initial_size=max(minSize, tree_num[ngens-2,i]),
                             population_id=i, growth_rate=0))
+                    #what is the difference bweteen this one and the one on line 217?! maybe this one should be inside?
+        
         else:
             demographic_events.append(msprime.PopulationParametersChange(
                         time=dt/genTime, initial_size=max(minSize, tree_num[ngens-2,i]),
                             population_id=i, growth_rate=0))
     print ('DefinePopParamForStep1 ended')
-    exit()
 
 
 
@@ -307,6 +304,7 @@ def populationMerge(BM):  #this is recalculating BM so it is ready for the last 
     t=0  
     N=(M.T*x)
     mig=[]
+    migrate=M[0,1]
 
     for i in range(n):
         mig.append([x[i]])
