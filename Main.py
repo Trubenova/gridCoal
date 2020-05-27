@@ -104,6 +104,7 @@ ps = args.tree_nums_file
 serial = args.serial
 scale = args.sc  #possibly remove this
 dt = args.dt  #timestep
+genTime=args.gen_time
 #dt=100
 minSize = 1e-10 # dealing with empty cells, this could be done in the load function?
 
@@ -122,10 +123,24 @@ print( 'min size is', minSize)
 
 
 
-def read_tree_nums():
+def read_inputs():
     # e.g. tree_num_epsg3035.tsv
     trees = np.loadtxt("{}.tsv".format(ps))
-    return trees
+    celllist =np.loadtxt(args.sample_coords_file, dtype='int')
+    
+    return trees, celllist
+
+def checkParameters():
+    assert tree_num.shape[1]%args.row_num == 0, "Oh no! Row numbers are not correct!"  #checks if n could be divided by row numb
+    assert n == M.shape[1], "Oh no! The migration matrix is not a square matrix!"
+    assert n == tree_num.shape[1], "Oh no, the number of demes is different in M and tree_num!"
+    assert n_ext == M_ext.shape[1], "Oh no! The extended migration matrix is not a square matrix!"
+    assert n_ext == n+anc_num, "Oh no! The extended population is not the sum of n and anc pop number!"
+    assert samp[0]>0, "Oh-no! We sample from cells that are empty!"
+    print ('All is fine')
+
+
+
 
 def read_migration_matrix(fname):
     f = open(fname, "r")
@@ -148,21 +163,7 @@ def read_migration_matrix(fname):
         M[ii, ii] = 0.0
     return M
 
-def read_coords():  #maybe just remove everything except cellnumber
-    # e.g. coords_epsg3035.tsv
-    locfile = open(args.sample_coords_file, "r")
-    header = locfile.readline().split()
-    assert(header == ['"X"', '"Y"', '"pop"', '"id"', '"cell"', '"msp_id"'])  
-    #this could be probably shortened to remove XY and other stuff
-    poplist = []
-    idlist = []
-    celllist = []
-    for line in locfile:
-        x, y, pop, id, cell, msp = [u.strip('"\n') for u in line.split()]
-        #poplist.append(pop)
-        #idlist.append(id)
-        celllist.append(int(cell))
-    return  celllist
+
 
 
 def generateBackwardMigMatrix(M, PastNe, RecentNe):  
@@ -190,51 +191,63 @@ def extendMigMatrix(M):  #this is probably not necessary, only should be used at
 
 
 
-def checkParameters():
-    assert tree_num.shape[1]%args.row_num == 0, "Oh no! Row numbers are not correct!"  #checks if n could be divided by row numb
-    assert n == M.shape[1], "Oh no! The migration matrix is not a square matrix!"
-    assert n == tree_num.shape[1], "Oh no, the number of demes is different in M and tree_num!"
-    assert n_ext == M_ext.shape[1], "Oh no! The extended migration matrix is not a square matrix!"
-    assert n_ext == n+anc_num, "Oh no! The extended population is not the sum of n and anc pop number!"
-    assert samp[0]>0, "Oh-no! We sample from cells that are empty!"
-    print ('All is fine')
-
 
 
 ################# I think this compares two time points. If the past one is empty and the never one is not, it mass migrate
 #if it is not empty, it does param change. What is BM used for?
 
-def DefinePopParamForStep1():
+def DefinePopParamForStep1(M, ADJ):
+    if M[0,1]==0:    #if migration is 0... this is only used for mass migration
+        pT=(M.T*tree_num[ngens-2])
+    else:
+        #pT=(M.T*tree_num[ngens-2]/M[0,1])
+        pT=ADJ.T*tree_num[ngens-2]
+
+    popT=pT.sum(axis=1)
+    print ('starting step 1')
+    print (ADJ.T)
+    print (tree_num[ngens-2])
+    print ('pt', pT)
+    
+    #print ('pt2', pT2)
+    
+    #popT[np.isnan(popT)] = 0.0
+    print (popT)
+    print ('DefinePopParamForStep1 running')
     for i in range(n):
         if tree_num[ngens-2,i]==0 and tree_num[ngens-1,i]!=0:
+            print ('colonisation encountered')
             for j in range(n):
                 if ADJ[i,j]!=0:  # ok this goes through all neighbouring cells, then makes popu. param change
                     demographic_events.append(msprime.PopulationParametersChange(
-                        time=dt/args.gen_time, initial_size=max(minSize, tree_num[ngens-2,j]),
+                        time=dt/genTime, initial_size=max(minSize, tree_num[ngens-2,j]),
                             population_id=j, growth_rate=0))
 
-                    if popT[i]==0.0:  # and then in compares proportion
+                    if popT[i]==0.0:  # and then in compares proportion  #here it would break if my example had zeros. 
                         prop=0
+                    
                     else:
                         prop=tree_num[ngens-2,j]/popT[i]
 
                     demographic_events.append(msprime.MassMigration(
-                        time=dt/args.gen_time, source=i, destination=j, proportion=min(1,prop)))
+                        time=dt/genTime, source=i, destination=j, proportion=min(1,prop)))
 
                     demographic_events.append(msprime.PopulationParametersChange(
-                        time=dt/args.gen_time, initial_size=max(minSize, tree_num[ngens-2,i]),
+                        time=dt/genTime, initial_size=max(minSize, tree_num[ngens-2,i]),
                             population_id=i, growth_rate=0))
         else:
             demographic_events.append(msprime.PopulationParametersChange(
-                        time=dt/args.gen_time, initial_size=max(minSize, tree_num[ngens-2,i]),
+                        time=dt/genTime, initial_size=max(minSize, tree_num[ngens-2,i]),
                             population_id=i, growth_rate=0))
+    print ('DefinePopParamForStep1 ended')
+    exit()
 
 
 
 
 
 def DefinePopParamForMiddleSteps(BM):
-    t= ngens-2
+    t= ngens-2  
     x_last=tree_num[t]
     BM_last=BM
     x=tree_num[t]
@@ -290,8 +303,8 @@ def DefinePopParamForMiddleSteps(BM):
         return x, BM_last
 
     
-def populationMerge(BM):  # I think this whole thing is not doing anything. 
-    t=0  #this was added but maybe I can just remove it? 
+def populationMerge(BM):  #this is recalculating BM so it is ready for the last step. 
+    t=0  
     N=(M.T*x)
     mig=[]
 
@@ -365,7 +378,7 @@ def MassMigrationToAncPop(BM):
 #######################################################################################
 
 # read the migration rates and the population sizes
-tree_num = read_tree_nums()
+tree_num, celllist = read_inputs()
 M = read_migration_matrix("M{}.tsv".format(m))
 ADJ = read_migration_matrix("{}.tsv".format(am))
 anc_num=len(args.ancpop_size)   #what is this for?
@@ -406,6 +419,7 @@ print ('total number of cells is:', n)
 
 
 
+
 # the extended migration includes the ancestral populations, but the migration rate
 # to and from these cells are 0. This is only used for the simulate() function
 # in every other case the original migration matrix is used together with the population sizes
@@ -426,8 +440,8 @@ print ('extenden matrix size', n_ext)  #this is all original cells plus all non-
 # to include the extra ancestral populations, we need to add extra 0s to the vector
 # ndip and and nsamples, however these will not affect the iteration or any other calculations
 
-celllist = read_coords()  
-print (celllist)
+#celllist = read_coords()  
+
 
 ########################No idea what this is and why we need it###########################
 
@@ -567,27 +581,11 @@ for i in range(n):
     mig.append([tree_num[ngens-1,i]])
 
     
-    #########this is all about mass migrations???
-migrate=M[0,1]
-#print (migrate)  # this is just some check, 
 
 
 
 
-#this is probably useless!
-if migrate==0:    #if migration is 0... this is only used for mass migration
-    pT=(M.T*tree_num[ngens-2])
-else:
-    pT=(M.T*tree_num[ngens-2]/migrate)
-
-popT=pT.sum(axis=1)
-#popT[np.isnan(popT)] = 0.0
-#print(popT)
-print (popT)
-
-
-
-DefinePopParamForStep1()
+DefinePopParamForStep1(M, ADJ)
 
 
 
