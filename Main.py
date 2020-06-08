@@ -234,26 +234,27 @@ def MassMigrationToAncPop():
 
     #t=0  #again this was added but maybe it does not have to be there?!
 
-###Creates ancestrl populations that were zeros until now
+###Creates ancestral populations that were zeros until now
     for i in range(anc_num):
         demographic_events.append(msprime.PopulationParametersChange(
-        time=dt * (ngens)/args.gen_time, initial_size=ancPopSizes[i],
+        time=dt * (ngens)/genTime, initial_size=ancPopSizes[i],
         population_id=n+i, growth_rate=0))  #I think this puts initial pop sizes (scaled) to all new ancestral populations
 
 #### And this mass migrates all the other lineages into these ancestral populations
     for i in range(n):   
         demographic_events.append(msprime.MassMigration(
-            time=dt * (ngens)/args.gen_time, source=i, destination=n+int(ancpop_list[[i]])-1, proportion=1.0))
+            time=dt * (ngens)/genTime, source=i, destination=n+int(ancpop_list[[i]])-1, proportion=1.0))
+        demographic_events.append(msprime.PopulationParametersChange(
+                            time=dt * (ngens)/genTime, initial_size=minSize,
+                                population_id=i, growth_rate=0))
 
 
 ## Migration rates are 0s for the grid, and for the ancestral population it's something small
     for i in range(n):
         for j in range(n):
-            #print (BM[i,j])
             if i!= j: 
-            #if BM[i,j]!=0.0:
                 demographic_events.append(msprime.MigrationRateChange(
-                    time=dt * (ngens)/args.gen_time, rate=0.0, matrix_index=(i, j)))
+                    time=dt * (ngens)/genTime, rate=0.0, matrix_index=(i, j)))
 
     for i in range(anc_num):
         for j in range(anc_num):
@@ -301,6 +302,58 @@ def DefinePopParamInFirstStep(migList):  #this is time step between presence and
 
 
 
+    
+def populationMerge( migList, initialN, genTime):  #this is recalculating BM so it is ready for the last step. 
+    
+    #t=0 
+    #print ('this is x', x)  #it is the first - oldest time point
+    #N=(M.T*x)
+    #mig=[]
+    #migrate=M[0,1]
+
+    #for i in range(n):
+    #    mig.append([x[i]])  #this is just the same as x, no?!
+
+    #if migrate==0:
+    #    pT=(M.T*x_next)
+    #else:
+    #    pT=(M.T*x_next/migrate)
+    #popT=pT.sum(axis=1)  #this is finding neighbours  - no ide why i is needed here. 
+    #BM=N/mig
+    #print ('this is x', x)
+    #print ('this is mig', mig)
+    #print ('this is N, M.T*x)', N) 
+    #print ('bm, N/mig', BM)
+    #print ('m', M)
+
+    
+    #print ('new BM', BM)
+    #BM[np.isnan(BM)] = 0.0
+    #BM[BM == inf] = 0.0
+    #for i in range(n):
+    #    for j in range(n):
+    #        if BM[i,j]!=BM_last[i,j]:
+    #            demographic_events.append(msprime.MigrationRateChange(
+    #                    time=dt * (ngens -1- t)/args.gen_time, rate=BM[i,j], matrix_index=(i, j))) 
+    #            print ('modified for cell', i, 'to cell',  j,' rate ',BM[i,j])
+                
+                
+
+    bMigList=generateBackwardMigList(migList.copy(), initialN, initialN)  #twice the same thing
+        #here add stuff for checking the lists! only updating when necessary. 
+    t_ago=dt*(ngens-1)
+    print ('new way in generation', t_ago/genTime)
+    
+    for i in range(len(bMigList[:,0])):
+            sourceCell=int(bMigList[i,0])  #source cell when thinking forward in time
+            targetCell=int(bMigList[i,1])
+            bmigRate=(bMigList[i,2])
+            demographic_events.append(msprime.MigrationRateChange(
+                         time=t_ago/genTime, rate=bmigRate, matrix_index=(sourceCell, targetCell)))
+            
+            print ('in gen ',t_ago/genTime,'modified for cell', sourceCell, 'to cell',  targetCell,' rate ',bmigRate)
+ 
+    #return ()
 
     
 ####################################### STARING TO READ IN DATA ################################################
@@ -538,7 +591,8 @@ for i in range(n_ext):
 def DefinePopParamForMiddleSteps(BM, migList):
 
     t= ngens-2  
-    print ('totoal time will be')
+    
+ 
     x_last=tree_num[t]
     BM_last=BM
     x=tree_num[t]
@@ -546,6 +600,7 @@ def DefinePopParamForMiddleSteps(BM, migList):
         print('this is time', t)
         thisN=tree_num[t]
         prevN=tree_num[t-1]  #this is more in the 
+       
         x_next=tree_num[t-1]
 
 
@@ -590,25 +645,14 @@ def DefinePopParamForMiddleSteps(BM, migList):
                             time=t_ago/genTime, initial_size=max(minSize, prevN[i]),
                                 population_id=i, growth_rate=0))
 
-                
+             
         BM=N/mig  #why? 
         BM[np.isnan(BM)] = 0.0
         BM[BM == inf] = 0.0
-        #for i in range(n):
-         #   for j in range(n):
-                #if x[j]!=0 and BM[i,j]!=BM_last[i,j]:
-                #    demographic_events.append(msprime.MigrationRateChange(
-                #         time=t_ago/genTime, rate=BM[i,j], matrix_index=(i, j)))
-                #    print ('modified for cell', i, 'to cell',  j,' rate ',BM[i,j])
-
-          #      if x[j]==0 and BM[i,j]!=BM_last[i,j]:
-                #    demographic_events.append(msprime.MigrationRateChange(
-                #         time=t_ago/genTime, rate=0, matrix_index=(i, j)))
-           #         print ('modified for cell', i, 'to cell',  j,' rate 0')
-                    
         x=x_next.copy()  #this should be .copy() ???
         BM_last=BM
-        
+        print ('this N is', thisN)
+        print ('prev N is', prevN)
         ######################## This modifies migrations #################
         bMigList=generateBackwardMigList(migList.copy(), thisN.copy(), prevN.copy())  
         #here add stuff for checking the lists! only updating when necessary. 
@@ -620,16 +664,87 @@ def DefinePopParamForMiddleSteps(BM, migList):
             demographic_events.append(msprime.MigrationRateChange(
                          time=t_ago/genTime, rate=bmigRate, matrix_index=(sourceCell, targetCell)))
             
-            print ('modified for cell', sourceCell, 'to cell',  targetCell,' rate ',bmigRate)
+            print ('in gen ',t_ago/genTime,'modified for cell', sourceCell, 'to cell',  targetCell,' rate ',bmigRate)
         t-=1
-    #exit()
+    exit()
     
     return x, BM_last, bMigList
 
 
 
+
+def DefinePopParamForMiddleSteps2(BM, migList):
+
+    t= ngens-2  
+    
+ 
+    #x_last=tree_num[t]
+    BM_last=BM
+    x=tree_num[t]
+    while t>=1:
+        print('this is time', t)
+        thisN=tree_num[t]
+        prevN=tree_num[t-1]  #this is more in the 
+
+       ######################## This modifies migrations #################
+        bMigList=generateBackwardMigList(migList.copy(), thisN.copy(), prevN.copy())  
+        #here add stuff for checking the lists! only updating when necessary. 
+ 
+        for i in range(len(bMigList[:,0])):
+            sourceCell=int(bMigList[i,0])  #source cell when thinking forward in time
+            targetCell=int(bMigList[i,1])
+            bmigRate=(bMigList[i,2])
+            demographic_events.append(msprime.MigrationRateChange(
+                         time=dt*(ngens - t-1)/genTime, rate=bmigRate, matrix_index=(sourceCell, targetCell)))
+            
+            print ('in gen ',dt*(ngens - t-1)/genTime,'modified for cell', sourceCell, 'to cell',  targetCell,' rate ',bmigRate)
         
-[x, BM_last, bMigList]= DefinePopParamForMiddleSteps(BM.copy(), migList.copy())
+        t_ago = dt * (ngens - t)   #dt * (ngens -1- t)
+        popT=np.zeros(np.shape(tree_num[ngens-1]))   #######maybe this whole chunk could be a special function?
+        if migList[0,2]!=0:  # this checks if migration is zero, only if not, this generates a vector - for each cell it contains sum of all neighbours in the previous step. 
+            for i in range(len(migList[:,0])):
+                cellOrigin=int(migList[i,0])
+                cellTarget=int(migList[i,1])
+                popT[cellOrigin]=popT[cellOrigin]+prevN[cellTarget]  #CHECK THIS
+
+
+##############
+        for i in range(n):
+            if prevN[i]==0 and thisN[i]!=0:#this means that a cell previously empty is now colonised. 
+                cellColonised=i
+                for j in range(len(migList[:,0])):
+                    if cellColonised==int(migList[j,0]):
+                        cellSource=int(migList[j,1])
+                        demographic_events.append(msprime.PopulationParametersChange(  
+                            time=t_ago/genTime, initial_size=max(minSize, prevN[cellSource]),
+                                population_id=cellSource, growth_rate=0))
+                         #this will increase source pop size, so it is filled before mass migrating the stuff into it
+                        if popT[cellColonised]==0.0:  # this means that sum od neighbours is 0 - sad stuff
+                            prop=0  #this is where sad stuff happens. Means that a lineage gets stuck somewhere until the end of time.                
+                        else:
+                            prop=prevN[cellSource]/popT[cellColonised]
+
+                        demographic_events.append(msprime.MassMigration(
+                            time=t_ago/genTime, source=cellColonised, destination=cellSource, proportion=min(1,prop)))
+                        demographic_events.append(msprime.PopulationParametersChange(
+                            time=t_ago/genTime, initial_size=max(minSize, prevN[cellColonised]),
+                                population_id=cellColonised, growth_rate=0))
+            else:  #some of these mau be already altered, but it should not matter. 
+                demographic_events.append(msprime.PopulationParametersChange(
+                            time=t_ago/genTime, initial_size=max(minSize, prevN[i]),
+                                population_id=i, growth_rate=0))
+
+             
+        t-=1
+    #exit()
+    
+    return x,  bMigList
+
+
+
+        
+#[x, BM_last, bMigList]= DefinePopParamForMiddleSteps(BM.copy(), migList.copy())
+[x,  bMigList]= DefinePopParamForMiddleSteps2(BM.copy(), migList.copy())
 x_next=x.copy()  #this is needed for population merge. Not sure what PM is. 
 
 
@@ -638,72 +753,7 @@ x_next=x.copy()  #this is needed for population merge. Not sure what PM is.
 
 
 
-    
-def populationMerge( migList, initialN, genTime):  #this is recalculating BM so it is ready for the last step. 
-    
-    #t=0 
-    #print ('this is x', x)  #it is the first - oldest time point
-    #N=(M.T*x)
-    #mig=[]
-    #migrate=M[0,1]
 
-    #for i in range(n):
-    #    mig.append([x[i]])  #this is just the same as x, no?!
-
-    #if migrate==0:
-    #    pT=(M.T*x_next)
-    #else:
-    #    pT=(M.T*x_next/migrate)
-    #popT=pT.sum(axis=1)  #this is finding neighbours  - no ide why i is needed here. 
-    #BM=N/mig
-    #print ('this is x', x)
-    #print ('this is mig', mig)
-    #print ('this is N, M.T*x)', N) 
-    #print ('bm, N/mig', BM)
-    #print ('m', M)
-
-    
-    #print ('new BM', BM)
-    #BM[np.isnan(BM)] = 0.0
-    #BM[BM == inf] = 0.0
-    #for i in range(n):
-    #    for j in range(n):
-    #        if BM[i,j]!=BM_last[i,j]:
-    #            demographic_events.append(msprime.MigrationRateChange(
-    #                    time=dt * (ngens -1- t)/args.gen_time, rate=BM[i,j], matrix_index=(i, j))) 
-    #            print ('modified for cell', i, 'to cell',  j,' rate ',BM[i,j])
-                
-                
-
-    bMigList=generateBackwardMigList(migList.copy(), initialN, initialN)  #twice the same thing
-        #here add stuff for checking the lists! only updating when necessary. 
-    t_ago=dt*(ngens-1)
-    print ('new way')
-    for i in range(len(bMigList[:,0])):
-            sourceCell=int(bMigList[i,0])  #source cell when thinking forward in time
-            targetCell=int(bMigList[i,1])
-            bmigRate=(bMigList[i,2])
-            demographic_events.append(msprime.MigrationRateChange(
-                         time=t_ago/genTime, rate=bmigRate, matrix_index=(sourceCell, targetCell)))
-            
-            print ('modified for cell', sourceCell, 'to cell',  targetCell,' rate ',bmigRate)
- 
-    #return ()
-
-
-#print ('this is BM before merge', BM )
-populationMerge(migList.copy(), tree_num[0], genTime)
-#print ('this is BM after merge', BM)
-#exit()  
-
-
-BM_ext=N_ext/mig_ext
-BM_ext[np.isnan(BM_ext)] = 0.0
-
-from numpy import inf
-BM_ext[BM_ext == inf] = 0.0
-
-bwM_ext=BM_ext
 
 
 
@@ -716,11 +766,20 @@ bwM_ext=BM_ext
 
 
 
-  
+
+populationMerge(migList.copy(), tree_num[0], genTime)
               
 MassMigrationToAncPop()
 
 
+
+BM_ext=N_ext/mig_ext
+BM_ext[np.isnan(BM_ext)] = 0.0
+
+from numpy import inf
+BM_ext[BM_ext == inf] = 0.0
+
+bwM_ext=BM_ext
 
 ##################################### Initial pop config ########################################           
 
