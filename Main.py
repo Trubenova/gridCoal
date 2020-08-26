@@ -56,6 +56,10 @@ def parseInputFiles(parser):
     parser.add_argument("--output_logfile", "-of", type=float, dest="logfile",
                     help="name of log file")
     #define log file
+    
+    parser.add_argument("--prit_debugger", "-pdeb", type=bool, dest="print_deb", default=False, 
+                    help="printing debugger option")
+    #define log file
  
     args = parser.parse_args()
     m = args.migr_mat_file
@@ -67,8 +71,9 @@ def parseInputFiles(parser):
     genTime=args.gen_time
     ancPopSizes=args.ancpop_size
     ancpop_list=args.ancpop_list
+    print_deb=args.print_deb
  
-    return args, m, ps, serial,  dt, genTime, sample_list, ancPopSizes, ancpop_list
+    return args, m, ps, serial,  dt, genTime, sample_list, ancPopSizes, ancpop_list, print_deb
 
 
 
@@ -360,7 +365,7 @@ def run_gridcoal():
     description = '''Simulate a coalescent within the history of Abies expansion.'''
 
     parser = argparse.ArgumentParser(description = description)
-    [args, m, ps, serial,  dt, genTime, sample_list, ancPopSizes, ancpop_list] = parseInputFiles(parser)
+    [args, m, ps, serial,  dt, genTime, sample_list, ancPopSizes, ancpop_list, print_deb] = parseInputFiles(parser)
 
     [tree_num,  migList,  anc_num, ancpop_list, ngens,  n, n_ext, minSize,sampled_demes, ndip]=read_input_data(args, m, ps, serial, dt, genTime,  sample_list, ancPopSizes, ancpop_list)
     
@@ -409,9 +414,10 @@ def run_gridcoal():
         print ('')
         
     
-
-        #sys.stdout = orig_stdout
-        #f.close()
+        if print_deb == False:
+            
+            sys.stdout = orig_stdout
+            f.close()
 
     ######### DEFINE DEMOGRAPHIC EVENTS THROUGH THE POPULATION HISTORY ######################
     #########################################################################################
@@ -452,12 +458,12 @@ def run_gridcoal():
     #    orig_stdout = sys.stdout
     #    f = open('OutputFile.txt','w')
     #    sys.stdout = f
-        
-        print ('DEMOGRAPHY DEBUGGER')
-        dd.print_history(output=f)
-        print ('')
-        sys.stdout = orig_stdout
-        f.close()
+        if print_deb == True:
+            print ('DEMOGRAPHY DEBUGGER')
+            dd.print_history(output=f)
+            print ('')
+            sys.stdout = orig_stdout
+            f.close()
 
 
     sim_results = msprime.simulate(
