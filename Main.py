@@ -1,3 +1,5 @@
+"""Main programm running gridCoal."""
+
 import argparse
 import sys
 import time
@@ -71,7 +73,7 @@ def parse_input_files(parser):
         type=str,
         dest="ancpop_list",
         default='nan',
-        help="name of file to load a list with the destination ancestral population for each gridcell")
+        help="name of file with a list with the ancestral population for each gridcell")
     # this defines ancestral population for each cell.
     parser.add_argument(
         "--ancpop_size",
@@ -156,7 +158,7 @@ def read_input_data(args, mig_file, demography_file, sample_list, anc_pop_sizes,
 
     min_size = 1e-10
 
-    assert tree_num.shape[1] % args.row_num == 0, "Not a rectangular map. Number of cells is not divisible by the number of rows!"
+    assert tree_num.shape[1] % args.row_num == 0, "Number of cells is not divisible by the number of rows!"
     assert samp[0] > 0, "You cannot sample from cells that are empty!"
     #print ('All is fine')
     ndip = np.zeros(n_ext)
@@ -228,7 +230,8 @@ def mass_migration_to_anc_pop(
                 time=delta_t * (ngens) / gen_time,
                 initial_size=anc_pop_sizes[i],
                 population_id=cell_num + i,
-                growth_rate=0))  # I think this puts initial pop sizes (scaled) to all new ancestral populations
+                growth_rate=0))
+        # I think this puts initial pop sizes (scaled) to all new ancestral populations
 
     # And this mass migrates all the other lineages into these ancestral
     # populations
@@ -344,7 +347,7 @@ def define_pop_param_in_first_step(
                 growth_rate=0))
 
 
-def define_pop_param_for_middle_steps2(
+def define_pop_param_for_middle_steps(
         demographic_events, mig_list, tree_num, ngens, delta_t, gen_time, min_size):
     """Defines demography and its changes for msprime in all midlle steps."""
 
@@ -537,48 +540,46 @@ def run_gridcoal():
 
     file1 = "CoalTime_M_{}.AncPop_{}.Dem_{}.dt{}.serial{}.tsv".format(
         mig_file, anc_num, demography_file, delta_t, serial)
-    print(serial)
-    if serial == 1:
-        orig_stdout = sys.stdout
-        f = open('OutputFile.txt', 'w')
-        sys.stdout = f
-        print('INPUT FILES')
-        print('using input file for population sized:')
-        print(demography_file)
-        print('input sizes are:', tree_num)
-        print('total number of cells is:', cell_num)
-        print('number of known steps:', ngens)
-        print('time between steps:', delta_t)
-        print('min population size is', min_size)
-        print('total known time is:', delta_t * ngens)
-        print('')
+    print (serial)
+    if serial ==1:
+        out_file = open('OutputFile2.txt','w')
+        out_file.write(
+"""
+INPUT FILES
+using input file for population sizes:
+%s
+input sizes: %s
+total number of cells: %s
+number of known steps: %s
+time between steps: %s
+min population size: %s
+total known time: %s
 
-        print('SAMPLING')
-        print('using input file for sample sizes: ', sample_list)
-        print('sample sizes taken:', ndip)
-        print('')
+SAMPLING
+using input file for sample sizes: %s
+sample sizes taken: %s
 
-        print('MIGRATION')
-        print('using input file for migration', mig_file)
-        print('migration is ["from" "to" "rate"]:')
-        print(mig_list)
-        print('')
-        print('ANCESTRAL POPULATION')
 
-        print('ancestral population IDs:')
-        print(ancpop_list)
-        print('ancestral population sizes:', anc_pop_sizes)
-        print('extenden population number:', n_ext)
-        print('')
+MIGRATION
+using input file for migration: %s
+migration is ["from" "to" "rate"]:
+%s
 
-        print('output file name is:', file1)
+ANCESTRAL POPULATION
 
-        print('')
+ancestral population IDs:
+%s
+ancestral population sizes:%s
+extenden population number: %s
 
+
+output file name: %s
+"""% (demography_file, tree_num, cell_num, ngens, delta_t, min_size, (delta_t * ngens), sample_list, ndip, mig_file, mig_list, ancpop_list, anc_pop_sizes, n_ext, file1))
+    #sys.stdout = orig_stdout
         if not print_deb:
 
-            sys.stdout = orig_stdout
-            f.close()
+            #sys.stdout = orig_stdout
+            out_file.close()
 
     ######### DEFINE DEMOGRAPHIC EVENTS THROUGH THE POPULATION HISTORY #######
     ##########################################################################
@@ -594,7 +595,7 @@ def run_gridcoal():
         delta_t,
         gen_time,
         min_size)
-    b_mig_list = define_pop_param_for_middle_steps2(
+    b_mig_list = define_pop_param_for_middle_steps(
         demographic_events,
         mig_list.copy(),
         tree_num.copy(),
@@ -648,10 +649,9 @@ def run_gridcoal():
         #    sys.stdout = f
         if print_deb:
             print('DEMOGRAPHY DEBUGGER')
-            dem_deb.print_history(output=f)
-            print('')
-            sys.stdout = orig_stdout
-            f.close()
+            dem_deb.print_history(output=out_file)
+            #sys.stdout = orig_stdout
+            out_file.close()
 
     sim_results = msprime.simulate(
         population_configurations=population_configurations,
