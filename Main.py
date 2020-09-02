@@ -30,12 +30,6 @@ def parse_input_files(parser):
         required=True,
         help="name of file containing migration matrix")
     # this loads migration matrix
-    # make this not obligatory a file - if single number is supplied, make
-    # symetric matrix.
-
-    # parser.add_argument("--adj_mat", "-am", type=str, dest="adj_mat_file", required=True,
-    #                help="name of file containing adjacency matrix")
-    # this loads adjacency matrix for when we need migration = 0
 
     parser.add_argument(
         "--sample_coords",
