@@ -2,6 +2,7 @@
 
 import argparse
 import sys
+import os
 import time
 import numpy as np
 import msprime
@@ -23,24 +24,6 @@ def parse_input_files(parser):
     # sizes in time
 
     parser.add_argument(
-        "--migr_mat",
-        "-mig",
-        type=str,
-        dest="migr_mat_file",
-        required=True,
-        help="name of file containing migration matrix")
-    # this loads migration matrix
-
-    parser.add_argument(
-        "--sample_coords",
-        "-sam",
-        type=str,
-        dest="sample_coords_file",
-        required=True,
-        help="name of file containing locations of sampling coordinates")
-    # this loads sample coordinates -  i am not sure what is this for.
-
-    parser.add_argument(
         "--row_number",
         "-row",
         type=int,
@@ -49,8 +32,55 @@ def parse_input_files(parser):
         help="number of rows in the originical grid")
     # number of rows in the original grid. Just for the first check
 
-    #############################################  OPTIONAL stuff ############
-    ##########################################################################
+    ####################################  OPTIONAL parameters ############
+    ###############################################################################
+    parser.add_argument(
+        "--migration_matrix",
+        "-mig",
+        type=str,
+        dest="migr_mat_file",
+        required=True,
+        help="name of file containing migration matrix")
+    # this loads migration matrix
+
+
+    parser.add_argument(
+        "--output_dir", 
+        "-odir", 
+        type=str, 
+        dest="basedir", 
+        default='OUTPUT',              
+        help="name of directory to save output files to.")
+    
+    parser.add_argument(
+        "--sample_coords",
+        "-sam",
+        type=str,
+        dest="sample_coords_file",
+        default='nan',
+        help="name of file containing locations of sampling coordinates")
+    # this loads sample coordinates -  i am not sure what is this for.
+
+
+    parser.add_argument(
+        "--ancpop_list",
+        "-apl",
+        type=str,
+        dest="ancpop_list",
+        default='nan',
+        help="name of file with a list with the ancestral population for each gridcell")
+    # this defines ancestral population for each cell.
+    
+    parser.add_argument(
+        "--ancpop_size",
+        "-aps",
+        type=str,
+        #nargs='+',
+        dest="ancpop_size",
+        default='nan',
+        help="list of the sizes of the ancestral populations, default 1 population of size 1")
+    # this should give sizes of ancestral populations, should be of dimension
+    # of the number of anc pop  %this is wrong, takes integer
 
     parser.add_argument(
         "--generation_time",
@@ -61,57 +91,37 @@ def parse_input_files(parser):
         help="generation time, default 1")
     # generation time
 
-    parser.add_argument(
-        "--ancpop_list",
-        "-apl",
-        type=str,
-        dest="ancpop_list",
-        default='nan',
-        help="name of file with a list with the ancestral population for each gridcell")
-    # this defines ancestral population for each cell.
-    parser.add_argument(
-        "--ancpop_size",
-        "-aps",
-        type=int,
-        nargs='+',
-        dest="ancpop_size",
-        default=[1],
-        help="list of the sizes of the ancestral populations, default 1 population of size 1")
-    # this should give sizes of ancestral populations, should be of dimension
-    # of the number of anc pop  %this is wrong, takes integer
 
     parser.add_argument("--delta_t", "-dt", type=float, dest="delta_t", default=10,
                         help="time interval between steps, default 10")
     # This gives delta_t- time between two known points
-
-    # SYS stuff.  check if this i
+    
     ##########################################################################
 
-    parser.add_argument("--serial", "-ser", type=int, dest="serial",
+    parser.add_argument("--replicate", "-rep", type=int, dest="serial", default=1,
                         help="serial number")
-    # I think this only assignes simulation serial number so it is saved into
-    # a different output file.
-
-    parser.add_argument("--output_dir", "-od", type=str, dest="basedir",
-                        help="name of directory to save output files to.")
-    # this is important!!!  NOT USED AT THE MOMENT?
-
-    parser.add_argument("--output_logfile", "-of", type=float, dest="logfile",
-                        help="name of log file")
-    # define log file
+    # Assignes simulation serial number so it is saved into a different output file.
 
     parser.add_argument(
-        "--prit_debugger",
+        "--print_debugger",
         "-pdeb",
         type=bool,
         dest="print_deb",
         default=False,
         help="printing debugger option")
     # define log file
+    
+    parser.add_argument(
+        "--set_seed",
+        "-seed",
+        type=int,
+        dest="set_seed",
+        default=0,
+        help="setting seed number")
+    # define log file
 
     args = parser.parse_args()
     mig_file = args.migr_mat_file
-    #am = args.adj_mat_file
     demography_file = args.tree_nums_file
     serial = args.serial
     sample_list = args.sample_coords_file
@@ -120,32 +130,88 @@ def parse_input_files(parser):
     anc_pop_sizes = args.ancpop_size
     ancpop_list = args.ancpop_list
     print_deb = args.print_deb
+    output_dir=args.basedir
+    
+    seed_no=args.set_seed
+    if seed_no == 0:
+        seed_no = np.random.randint(1000000)
 
-    return args, mig_file, demography_file, serial, delta_t, gen_time, sample_list, anc_pop_sizes, ancpop_list, print_deb
+    return args, mig_file, demography_file, serial, delta_t, gen_time, sample_list, anc_pop_sizes, ancpop_list, print_deb, output_dir, seed_no
 
+
+def sample_all_cells(tree_num):
+    today=tree_num[-1, :]
+    samplelist=[]
+    for i in range(len(today)):
+        if today[i]>0:
+            samplelist.append(i)
+    samplelist=np.array(samplelist)
+    return samplelist
+
+def generate_migration_list(rows, cols, m):
+    n = rows*cols
+    add_mat = np.zeros([n,n])
+    for r in range(rows):
+        for c in range(cols):
+            i = r*cols + c
+            # Two inner diagonals
+            if c > 0: add_mat[i-1,i] = add_mat[i,i-1] = 1
+            # Two outer diagonals
+            if r > 0: add_mat[i-cols,i] = add_mat[i,i-cols] = 1
+    m_list=[]
+    for i in range(n):
+        for j in range (n):
+            if add_mat[i,j]==1:
+                m_list.append([int(i),int(j),m])
+    m_list=np.array(m_list)   
+    return m_list
 
 def read_input_data(args, mig_file, demography_file, sample_list, anc_pop_sizes, ancpop_list):
-    """Reads input data from tsv files and returns them in variables."""
+    """Reads input data from txt files and returns them in variables."""
 
-    tree_num = np.loadtxt("{}.tsv".format(demography_file))
-    sampled_demes = np.loadtxt("{}.tsv".format(sample_list), dtype='int')
-    mig_list = np.loadtxt("{}.tsv".format(mig_file), dtype='float')
-    #ADJ = read_migration_matrix("{}.tsv".format(am))
-
-    anc_num = len(anc_pop_sizes)  # what is this for?
-
-    ngens = tree_num.shape[0]
+    tree_num = np.loadtxt("{}.txt".format(demography_file))
+    
+    try:
+        migration_rate=float(mig_file)
+        mig_list=generate_migration_list(args.row_num, int(tree_num.shape[1]/args.row_num), migration_rate)
+    except: 
+        mig_list = np.loadtxt("{}.txt".format(mig_file), dtype='float')
+    
     cell_num = tree_num.shape[1]
-    n_ext = cell_num + anc_num
-
+    ngens = tree_num.shape[0]
     if ancpop_list == 'nan':
         ancpop_list = np.zeros(cell_num) + 1
 
         ancpop_list = ancpop_list.astype(int)
     else:
         # this is a list assigning ancestral pop to each cell of the grid.
-        ancpop_list = np.loadtxt("{}.tsv".format(ancpop_list), dtype='int')
+        ancpop_list = np.loadtxt("{}.txt".format(ancpop_list), dtype='int')
     #values, counts = np.unique(words, return_counts=True)
+    
+    if anc_pop_sizes == 'nan':
+        anc_pop_sizes= np.zeros(len(np.unique(ancpop_list))) + 1
+
+        anc_pop_sizes = anc_pop_sizes.astype(int)
+    else:
+        # this is a list assigning ancestral pop to each cell of the grid.
+        anc_pop_sizes = np.loadtxt("{}.txt".format(anc_pop_sizes), dtype='int')
+    #values, counts = np.unique(words, return_counts=True)
+    print (anc_pop_sizes)
+    
+    
+    if sample_list == 'nan':
+        sampled_demes = sample_all_cells(tree_num)
+    else:
+        sampled_demes = np.loadtxt("{}.txt".format(sample_list), dtype='int')
+    
+    anc_num = len(anc_pop_sizes)  # what is this for?
+    n_ext = cell_num + anc_num
+
+
+    
+    
+    
+    
     sampled_demes.sort()
     # all this fun is just to ceck if we don't sample an empty cell. Why 'set'?
     samp = list(set(tree_num[-1][sampled_demes]))
@@ -160,7 +226,7 @@ def read_input_data(args, mig_file, demography_file, sample_list, anc_pop_sizes,
     ndip[sampled_demes] = 2
     ndip = ndip.astype(int)
 
-    return tree_num, mig_list, anc_num, ancpop_list, ngens, cell_num, n_ext, min_size, ndip
+    return tree_num, mig_list, anc_num, ancpop_list, ngens, cell_num, n_ext, min_size, ndip, anc_pop_sizes
 
 
 def generate_extended_bm_matrix(n_ext, b_mig_list):
@@ -203,6 +269,8 @@ def generate_backward_mig_list(mig_list, recent_ne, past_ne):
     b_mig_list = b_mig_list[np.argsort(b_mig_list[:, 0])]
 
     return b_mig_list
+
+
 
 
 def mass_migration_to_anc_pop(
@@ -365,8 +433,6 @@ def define_pop_param_for_middle_steps(
             demographic_events.append(msprime.MigrationRateChange(
                 time=delta_t * (ngens - t - 1) / gen_time, rate=b_mig_rate, matrix_index=(source_cell, target_cell)))
 
-            #print ('in gen ',delta_t*(ngens - t-1)/gen_time,'modified for cell', source_cell, 'to cell',  target_cell,' rate ',b_mig_rate)
-
         t_ago = delta_t * (ngens - t)  # delta_t * (ngens -1- t)
         # maybe this whole chunk could be a special function?
         pop_t = np.zeros(np.shape(tree_num[ngens - 1]))
@@ -509,13 +575,18 @@ def run_gridcoal():
 
     start_t = time.time()
     print("sim start")
-    seed_no = np.random.get_state()
+    
    #!/usr/bin/env python3
     description = '''Simulate a coalescent within the history of Abies expansion.'''
 
     parser = argparse.ArgumentParser(description=description)
     [args, mig_file, demography_file, serial, delta_t, gen_time, sample_list, anc_pop_sizes,
-        ancpop_list, print_deb] = parse_input_files(parser)
+        ancpop_list, print_deb, dir_name, seed_no] = parse_input_files(parser)
+    
+    np.random.seed(seed_no)
+
+    #if seed_file != 'nan':
+     #   print ('I dont know what to do')
 
     [tree_num,
      mig_list,
@@ -525,18 +596,28 @@ def run_gridcoal():
      cell_num,
      n_ext,
      min_size,
-     ndip] = read_input_data(args,
+     ndip, anc_pop_sizes] = read_input_data(args,
                              mig_file,
                              demography_file,
                              sample_list,
                              anc_pop_sizes,
                              ancpop_list)
+    
 
-    file1 = "CoalTime_M_{}.AncPop_{}.Dem_{}.dt{}.serial{}.tsv".format(
-        mig_file, anc_num, demography_file, delta_t, serial)
-    print (serial)
+    #file1 = "CoalTime_M_{}.AncPop_{}.Dem_{}.dt{}.serial{}.tsv".format(
+    #    mig_file, anc_num, demography_file, delta_t, serial)
+    file1 = str(dir_name+'/'+dir_name+'CoalTimes'+str(serial)+'.txt')
+    
+    
+
+    
+    if not os.path.exists(dir_name):
+        os.mkdir(dir_name)
+        print("Directory " , dir_name ,  " Created ")
+
+
     if serial ==1:
-        out_file = open('OutputFile2.txt','w')
+        out_file = open(dir_name+'/'+dir_name+'Output.txt','w')
         out_file.write(
 """
 INPUT FILES
@@ -568,12 +649,10 @@ extenden population number: %s
 
 
 output file name: %s
-"""% (demography_file, tree_num, cell_num, ngens, delta_t, min_size, (delta_t * ngens), sample_list, ndip, mig_file, mig_list, ancpop_list, anc_pop_sizes, n_ext, file1))
-    #sys.stdout = orig_stdout
-        if not print_deb:
-
-            #sys.stdout = orig_stdout
-            out_file.close()
+random seed number: %s
+"""% (demography_file, tree_num, cell_num, ngens, delta_t, min_size, (delta_t * ngens), sample_list, ndip, mig_file, mig_list, ancpop_list, anc_pop_sizes, n_ext, file1, seed_no))
+        out_file.close()
+       
 
     ######### DEFINE DEMOGRAPHIC EVENTS THROUGH THE POPULATION HISTORY #######
     ##########################################################################
@@ -633,19 +712,16 @@ output file name: %s
     ##################################### SIMULATION #########################
     ##########################################################################
 
-    dem_deb = msprime.DemographyDebugger(
-        population_configurations=population_configurations,
-        migration_matrix=backw_mig_mat,
-        demographic_events=demographic_events)
-    if serial == 1:
-        #    orig_stdout = sys.stdout
-        #    f = open('OutputFile.txt','w')
-        #    sys.stdout = f
-        if print_deb:
-            print('DEMOGRAPHY DEBUGGER')
-            dem_deb.print_history(output=out_file)
+    
+    if ((serial == 1) and (print_deb)):
+        dem_deb = msprime.DemographyDebugger(
+            population_configurations=population_configurations,
+            migration_matrix=backw_mig_mat,
+            demographic_events=demographic_events)
+        out_file = open(dir_name+'/'+dir_name+'DemographyDebugger.txt','w')
+        dem_deb.print_history(output=out_file)
             #sys.stdout = orig_stdout
-            out_file.close()
+        out_file.close()
 
     sim_results = msprime.simulate(
         population_configurations=population_configurations,
