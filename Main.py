@@ -10,7 +10,6 @@ import msprime
 ##########################################  FUNCTIONS ####################
 ##########################################################################
 
-
 def parse_input_files(parser):
     """Parse input arguments and return parameters or input files."""
     parser.add_argument(
@@ -32,8 +31,8 @@ def parse_input_files(parser):
         help="number of rows in the originical grid")
     # number of rows in the original grid. Just for the first check
 
-    ####################################  OPTIONAL parameters ############
-    ###############################################################################
+####################################  OPTIONAL parameters ###############
+#########################################################################
     parser.add_argument(
         "--migration_matrix",
         "-mig",
@@ -91,13 +90,10 @@ def parse_input_files(parser):
         help="generation time, default 1")
     # generation time
 
-
     parser.add_argument("--delta_t", "-dt", type=float, dest="delta_t", default=10,
                         help="time interval between steps, default 10")
     # This gives delta_t- time between two known points
     
-    ##########################################################################
-
     parser.add_argument("--replicate", "-rep", type=int, dest="serial", default=1,
                         help="serial number")
     # Assignes simulation serial number so it is saved into a different output file.
@@ -206,12 +202,6 @@ def read_input_data(args, mig_file, demography_file, sample_list, anc_pop_sizes,
     
     anc_num = len(anc_pop_sizes)  # what is this for?
     n_ext = cell_num + anc_num
-
-
-    
-    
-    
-    
     sampled_demes.sort()
     # all this fun is just to ceck if we don't sample an empty cell. Why 'set'?
     samp = list(set(tree_num[-1][sampled_demes]))
@@ -228,7 +218,6 @@ def read_input_data(args, mig_file, demography_file, sample_list, anc_pop_sizes,
 
     return tree_num, mig_list, anc_num, ancpop_list, ngens, cell_num, n_ext, min_size, ndip, anc_pop_sizes
 
-
 def generate_extended_bm_matrix(n_ext, b_mig_list):
     """Generates extended migration matrix."""
     backw_mig_mat = np.zeros([n_ext, n_ext])
@@ -240,14 +229,12 @@ def generate_extended_bm_matrix(n_ext, b_mig_list):
         backw_mig_mat[source_cell, target_cell] = b_mig_rate
     return backw_mig_mat
 
-
 def generate_ext_pop_n(tree_num, cell_num, n_ext, ngens):
     """Returns populations with added non spatial ancestral populations."""
     present_pop = np.zeros(n_ext)
     for i in range(cell_num):
         present_pop[i] = tree_num[ngens - 1, i]
     return present_pop
-
 
 def generate_backward_mig_list(mig_list, recent_ne, past_ne):
     """Generate backward migration list"""
@@ -267,11 +254,7 @@ def generate_backward_mig_list(mig_list, recent_ne, past_ne):
         b_mig_list.append(b_mig)
     b_mig_list = np.array(b_mig_list)
     b_mig_list = b_mig_list[np.argsort(b_mig_list[:, 0])]
-
     return b_mig_list
-
-
-
 
 def mass_migration_to_anc_pop(
         demographic_events,
@@ -408,7 +391,6 @@ def define_pop_param_in_first_step(
                 population_id=i,
                 growth_rate=0))
 
-
 def define_pop_param_for_middle_steps(
         demographic_events, mig_list, tree_num, ngens, delta_t, gen_time, min_size):
     """Defines demography and its changes for msprime in all midlle steps."""
@@ -542,7 +524,6 @@ def population_merge(demographic_events, mig_list,
                     source_cell,
                     target_cell)))
 
-
 ####################################### STARING TO READ IN DATA ##########
 ##########################################################################
 
@@ -602,14 +583,8 @@ def run_gridcoal():
                              sample_list,
                              anc_pop_sizes,
                              ancpop_list)
-    
 
-    #file1 = "CoalTime_M_{}.AncPop_{}.Dem_{}.dt{}.serial{}.tsv".format(
-    #    mig_file, anc_num, demography_file, delta_t, serial)
     file1 = str(dir_name+'/'+dir_name+'CoalTimes'+str(serial)+'.txt')
-    
-    
-
     
     if not os.path.exists(dir_name):
         os.mkdir(dir_name)
@@ -711,7 +686,6 @@ random seed number: %s
 
     ##################################### SIMULATION #########################
     ##########################################################################
-
     
     if ((serial == 1) and (print_deb)):
         dem_deb = msprime.DemographyDebugger(
@@ -741,6 +715,5 @@ random seed number: %s
 ##########################################################################
 # MAIN FUNCTION STARTING HERE
 ##########################################################################
-
 
 run_gridcoal()
