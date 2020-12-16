@@ -6,7 +6,6 @@ import msprime
 import numpy as np
 import os
 import timeit
-
 import argparse
 
 parser = argparse.ArgumentParser(description=description)
