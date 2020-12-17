@@ -164,13 +164,13 @@ def generate_migration_list(rows, cols, m):
 def read_input_data(args, mig_file, demography_file, sample_list, anc_pop_sizes, ancpop_list):
     """Reads input data from txt files and returns them in variables."""
 
-    tree_num = np.loadtxt("{}.txt".format(demography_file))
+    tree_num = np.loadtxt("{}".format(demography_file))
 
     try:
         migration_rate=float(mig_file)
         mig_list=generate_migration_list(args.row_num, int(tree_num.shape[1]/args.row_num), migration_rate)
     except:
-        mig_list = np.loadtxt("{}.txt".format(mig_file), dtype='float')
+        mig_list = np.loadtxt("{}".format(mig_file), dtype='float')
 
     cell_num = tree_num.shape[1]
     ngens = tree_num.shape[0]
@@ -180,7 +180,7 @@ def read_input_data(args, mig_file, demography_file, sample_list, anc_pop_sizes,
         ancpop_list = ancpop_list.astype(int)
     else:
         # this is a list assigning ancestral pop to each cell of the grid.
-        ancpop_list = np.loadtxt("{}.txt".format(ancpop_list), dtype='int')
+        ancpop_list = np.loadtxt("{}".format(ancpop_list), dtype='int')
     #values, counts = np.unique(words, return_counts=True)
 
     if anc_pop_sizes == 'nan':
@@ -189,7 +189,7 @@ def read_input_data(args, mig_file, demography_file, sample_list, anc_pop_sizes,
         anc_pop_sizes = anc_pop_sizes.astype(int)
     else:
         # this is a list assigning ancestral pop to each cell of the grid.
-        anc_pop_sizes = np.loadtxt("{}.txt".format(anc_pop_sizes), dtype='int')
+        anc_pop_sizes = np.loadtxt("{}".format(anc_pop_sizes), dtype='int')
     #values, counts = np.unique(words, return_counts=True)
     print (anc_pop_sizes)
 
@@ -197,7 +197,7 @@ def read_input_data(args, mig_file, demography_file, sample_list, anc_pop_sizes,
     if sample_list == 'nan':
         sampled_demes = sample_all_cells(tree_num)
     else:
-        sampled_demes = np.loadtxt("{}.txt".format(sample_list), dtype='int')
+        sampled_demes = np.loadtxt("{}".format(sample_list), dtype='int')
 
     anc_num = len(anc_pop_sizes)  # what is this for?
     n_ext = cell_num + anc_num
