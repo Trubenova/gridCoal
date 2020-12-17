@@ -44,13 +44,13 @@ def parse_input_files(parser):
 
 
     parser.add_argument(
-        "--output_dir", 
-        "-odir", 
-        type=str, 
-        dest="basedir", 
-        default='OUTPUT',              
+        "--output_dir",
+        "-odir",
+        type=str,
+        dest="basedir",
+        default='OUTPUT',
         help="name of directory to save output files to.")
-    
+
     parser.add_argument(
         "--sample_coords",
         "-sam",
@@ -69,7 +69,7 @@ def parse_input_files(parser):
         default='nan',
         help="name of file with a list with the ancestral population for each gridcell")
     # this defines ancestral population for each cell.
-    
+
     parser.add_argument(
         "--ancpop_size",
         "-aps",
@@ -93,7 +93,7 @@ def parse_input_files(parser):
     parser.add_argument("--delta_t", "-dt", type=float, dest="delta_t", default=10,
                         help="time interval between steps, default 10")
     # This gives delta_t- time between two known points
-    
+
     parser.add_argument("--replicate", "-rep", type=int, dest="serial", default=1,
                         help="serial number")
     # Assignes simulation serial number so it is saved into a different output file.
@@ -106,7 +106,7 @@ def parse_input_files(parser):
         default=False,
         help="printing debugger option")
     # define log file
-    
+
     parser.add_argument(
         "--set_seed",
         "-seed",
@@ -127,13 +127,12 @@ def parse_input_files(parser):
     ancpop_list = args.ancpop_list
     print_deb = args.print_deb
     output_dir=args.basedir
-    
+
     seed_no=args.set_seed
     if seed_no == 0:
         seed_no = np.random.randint(1000000)
 
     return args, mig_file, demography_file, serial, delta_t, gen_time, sample_list, anc_pop_sizes, ancpop_list, print_deb, output_dir, seed_no
-
 
 def sample_all_cells(tree_num):
     today=tree_num[-1, :]
@@ -159,20 +158,20 @@ def generate_migration_list(rows, cols, m):
         for j in range (n):
             if add_mat[i,j]==1:
                 m_list.append([int(i),int(j),m])
-    m_list=np.array(m_list)   
+    m_list=np.array(m_list)
     return m_list
 
 def read_input_data(args, mig_file, demography_file, sample_list, anc_pop_sizes, ancpop_list):
     """Reads input data from txt files and returns them in variables."""
 
     tree_num = np.loadtxt("{}.txt".format(demography_file))
-    
+
     try:
         migration_rate=float(mig_file)
         mig_list=generate_migration_list(args.row_num, int(tree_num.shape[1]/args.row_num), migration_rate)
-    except: 
+    except:
         mig_list = np.loadtxt("{}.txt".format(mig_file), dtype='float')
-    
+
     cell_num = tree_num.shape[1]
     ngens = tree_num.shape[0]
     if ancpop_list == 'nan':
@@ -183,7 +182,7 @@ def read_input_data(args, mig_file, demography_file, sample_list, anc_pop_sizes,
         # this is a list assigning ancestral pop to each cell of the grid.
         ancpop_list = np.loadtxt("{}.txt".format(ancpop_list), dtype='int')
     #values, counts = np.unique(words, return_counts=True)
-    
+
     if anc_pop_sizes == 'nan':
         anc_pop_sizes= np.zeros(len(np.unique(ancpop_list))) + 1
 
@@ -193,13 +192,13 @@ def read_input_data(args, mig_file, demography_file, sample_list, anc_pop_sizes,
         anc_pop_sizes = np.loadtxt("{}.txt".format(anc_pop_sizes), dtype='int')
     #values, counts = np.unique(words, return_counts=True)
     print (anc_pop_sizes)
-    
-    
+
+
     if sample_list == 'nan':
         sampled_demes = sample_all_cells(tree_num)
     else:
         sampled_demes = np.loadtxt("{}.txt".format(sample_list), dtype='int')
-    
+
     anc_num = len(anc_pop_sizes)  # what is this for?
     n_ext = cell_num + anc_num
     sampled_demes.sort()
@@ -556,18 +555,15 @@ def run_gridcoal():
 
     start_t = time.time()
     print("sim start")
-    
+
    #!/usr/bin/env python3
     description = '''Simulate a coalescent within the history of Abies expansion.'''
 
     parser = argparse.ArgumentParser(description=description)
     [args, mig_file, demography_file, serial, delta_t, gen_time, sample_list, anc_pop_sizes,
         ancpop_list, print_deb, dir_name, seed_no] = parse_input_files(parser)
-    
-    np.random.seed(seed_no)
 
-    #if seed_file != 'nan':
-     #   print ('I dont know what to do')
+    np.random.seed(seed_no)
 
     [tree_num,
      mig_list,
@@ -585,7 +581,7 @@ def run_gridcoal():
                              ancpop_list)
 
     file1 = str(dir_name+'/'+dir_name+'CoalTimes'+str(serial)+'.txt')
-    
+
     if not os.path.exists(dir_name):
         os.mkdir(dir_name)
         print("Directory " , dir_name ,  " Created ")
@@ -627,7 +623,7 @@ output file name: %s
 random seed number: %s
 """% (demography_file, tree_num, cell_num, ngens, delta_t, min_size, (delta_t * ngens), sample_list, ndip, mig_file, mig_list, ancpop_list, anc_pop_sizes, n_ext, file1, seed_no))
         out_file.close()
-       
+
 
     ######### DEFINE DEMOGRAPHIC EVENTS THROUGH THE POPULATION HISTORY #######
     ##########################################################################
@@ -686,7 +682,7 @@ random seed number: %s
 
     ##################################### SIMULATION #########################
     ##########################################################################
-    
+
     if ((serial == 1) and (print_deb)):
         dem_deb = msprime.DemographyDebugger(
             population_configurations=population_configurations,
