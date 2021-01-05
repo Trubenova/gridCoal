@@ -1,3 +1,3 @@
-#Readme file for gridCoal simulation tool
+# Readme file for gridCoal simulation tool
 
-##Introduction
+## Introduction
