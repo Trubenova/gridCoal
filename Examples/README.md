@@ -1,4 +1,4 @@
-# Simulating species range expansion
+# Simulating increase in population sizes
 
 In this worked out example, we create simple input data representing an expansion of a fictitious species over T=10 time points spaced dt=20 years apart, with generation time of gt=2 years, on a rectangular grid of 5 rows x 4 columns . At the final time point, all cells are occupied, with  population sizes drawn from Poisson distribution with mean size of N= 10.
 Migration rate between neighbouring cells is 0.1.  
@@ -40,5 +40,10 @@ Finally, the last cell print out the inputs on the screen.
 
 
 ## Running the simulations
+Run the simulation after specifying all the necessary input files, in terminal (on Mac) for instance as
+```
+python3 Main.py -pop example_simple_exp_lin_inc_N_10.txt -row 5 -mig example_simple_exp_mig_list0.1.txt -sam example_simple_exp_sample_list.txt -d 20 -gen 2 -rep 1 -seed 2
+```
+
 
 ## Analysing outputs

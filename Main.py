@@ -18,7 +18,7 @@ def parse_input_files(parser):
         type=str,
         dest="tree_nums_file",
         required=True,
-        help="name of file to load tree number history from")
+        help="name of file to load demographic history from")
     # this loads the file with the demographic history, all cells population
     # sizes in time
 
