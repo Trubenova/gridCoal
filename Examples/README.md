@@ -1,8 +1,30 @@
 # Simulating species range expansion
 
-In this worked out example, we create simple input data representing an expansion of a fictitious species over 10 time points spaced 20 years apart, with generation time of 2 years, on a rectangular grid of 5 x 4. We will sample two middle lines a calculate coalescence times for pairs of samples from each pair of sampled cells.
+In this worked out example, we create simple input data representing an expansion of a fictitious species over T=10 time points spaced dt=20 years apart, with generation time of gt=2 years, on a rectangular grid of 5 rows x 4 columns . At the final time point, all cells are occupied, with  population sizes drawn from Poisson distribution with mean size of N= 10.
+Migration rate between neighbouring cells is 0.1.  
 
+We sample half of the cells (s=0.5).
 
 Then we run 100 coalescence simulations using the main gridCoal simulator (Main.py), generating 100 output files with coalescence times, one with a summary of inputs, as well as very detailed demography debugger produced by msprime.
 
-Then we analyse the outputs, calculating global Fst anf F^*.
+Then we analyse the outputs, calculating global Fst anf F*.
+
+## Generating inputs
+Open jupyter notebook GeneratingInputs.ipynb and define the parameters in the second cell.
+```python
+rows = 5   #number of rows
+cols = 4   #number of columns
+T = 10 #number of time steps
+gt=2  #generation time
+dt=20 # time between defined time steps
+N=10  #average population size
+mu=0.1 #migration rate between neighbouring demes
+s = 0.5 # s is coverage - fraction of sampled grid cells. Note that using this function may include
+#some that are empty in the input data, which will cause error. Check before submitting for simulations.
+
+batch_name = 'example_simple_exp_'  #prefix used for input data associated with this simulation
+```
+
+## Running the simulations
+
+## Analysing outputs

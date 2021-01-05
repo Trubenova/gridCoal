@@ -15,6 +15,6 @@ GridCoal Tutorial.ipynb is a jupyter notebook file that explains input and outpu
 
 AnalysingOutput.ipynb is a jupyter notebook file that allows to analyse outputs of simulation repeats (coalescent times) and calculte Fst as well as to create isolation by distance patterns.
 
-InputFileGenerator.ipynb is a jupyter notebook file that allows to prepare simple inputs for the simulator.
+InputFileGenerator.ipynb is a jupyter notebook file that allows to prepare simple inputs for the simulator. Note that this functionality is limited, and is mainly useful for testing purposes.
 
 Examples is a directory, in which complete examples are worked out, together with input files.
