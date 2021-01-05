@@ -696,7 +696,8 @@ random seed number: %s
     sim_results = msprime.simulate(
         population_configurations=population_configurations,
         demographic_events=demographic_events,
-        migration_matrix=backw_mig_mat)
+        migration_matrix=backw_mig_mat,
+        random_seed=seed_no)
 
     ########################CALCULATE EXPECTED PAIRWISE COALESCENCE TIMES#####
     ##########################################################################

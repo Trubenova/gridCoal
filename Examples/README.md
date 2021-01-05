@@ -42,8 +42,26 @@ Finally, the last cell print out the inputs on the screen.
 ## Running the simulations
 Run the simulation after specifying all the necessary input files, in terminal (on Mac) for instance as
 ```
-python3 Main.py -pop example_simple_exp_lin_inc_N_10.txt -row 5 -mig example_simple_exp_mig_list0.1.txt -sam example_simple_exp_sample_list.txt -d 20 -gen 2 -rep 1 -seed 2
+python3 Main.py -pop example_simple_exp_lin_inc_N_10.txt -row 5 -mig example_simple_exp_mig_list0.1.txt -sam example_simple_exp_sample_list.txt -d 20 -gen 2 -rep 1
 ```
 
+You can also specify additional parameters, such as printing out demography debugger by msprime by setting
+```
+-pdeb TRUE
+```
+sett a seed number by adding
+```
+-seed INT
+```
+or specify output file by
+```
+-odir OUTPUT_DIR_NAME [string ]
+```
 
+Multiple parallel simulations can be run by:
+```   
+for i in {1..100} ; do python3 Main.py -pop example_simple_exp_lin_inc_N_10.txt -row 5 -mig example_simple_exp_mig_list0.1.txt -sam example_simple_exp_sample_list.txt -d 20 -gen 2 -rep $i & done
+```
+
+All output files are stored in
 ## Analysing outputs
