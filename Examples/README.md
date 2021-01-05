@@ -60,7 +60,9 @@ or specify output file by
 
 Multiple parallel simulations can be run by:
 ```   
-for i in {1..100} ; do python3 Main.py -pop example_simple_exp_lin_inc_N_10.txt -row 5 -mig example_simple_exp_mig_list0.1.txt -sam example_simple_exp_sample_list.txt -d 20 -gen 2 -rep $i & done
+for i in {1..100} ; do python3 Main.py -pop example_simple_exp_lin_inc_N_10.txt -row 5
+-mig example_simple_exp_mig_list0.1.txt -sam example_simple_exp_sample_list.txt -d 20
+-gen 2 -rep $i & done
 ```
 
 All output files are stored in
