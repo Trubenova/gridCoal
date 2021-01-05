@@ -25,6 +25,20 @@ s = 0.5 # s is coverage - fraction of sampled grid cells. Note that using this f
 batch_name = 'example_simple_exp_'  #prefix used for input data associated with this simulation
 ```
 
+then run the following cell to define the functions.
+
+The next cell generated input files, that are saved as txt files with prefix specified in 'batch_name':
+
+```python
+final_map = generate_final_map(rows, cols, N)   #generate final map
+my_demography=generate_lin_increase_data(final_map, T, batch_name)  #generate linear increasing pop sizes leading to final map
+mig_list= generate_migration_list(rows, cols, mu, batch_name)
+sample_list=generate_sample_list(rows, cols,0.5, batch_name)
+ancpop_list=generate_ancestral_pop(rows, cols, batch_name=batch_name )
+```
+Finally, the last cell print out the inputs on the screen.
+
+
 ## Running the simulations
 
 ## Analysing outputs
