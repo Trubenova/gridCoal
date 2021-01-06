@@ -67,3 +67,13 @@ for i in {1..100} ; do python3 Main.py -pop example_simple_exp_lin_inc_N_10.txt 
 
 All output files are stored in
 ## Analysing outputs
+
+Open jupyter notebook AnalysingOutput.ipynb file. Specify the input files, the name of the files containing coalescence times (without the replicate number and txt extension) and their number.
+
+Run the second cell to import relevant packages and define functions.
+
+Run the third cell to load the files and create a matrix with mean coalescence times. This step may take a while, if many replicates must be loaded. A file named with the name of the time-containing files with extension MEAN.txt is created.  
+
+Finally, run the fourth cell to calculate mean total coalescence time, mean within deme and between deme coalescence times, Fst and mean coalescence times for samples taken from different (Manhattan) distance classes. A heatmap with diversity (approximated by within deme coalescence times) and isolation by distance plots are created.
+
+ 
