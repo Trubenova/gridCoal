@@ -1,5 +1,31 @@
 # gridCoal Tutorial
 
+## Table of contents
+
+<!-- TOC START min:1 max:3 link:true asterisk:false update:true -->
+- [gridCoal Tutorial](#gridcoal-tutorial)
+  - [Table of contents](#table-of-contents)
+  - [Introduction](#introduction)
+  - [How to use:](#how-to-use)
+  - [Input files and parameters](#input-files-and-parameters)
+  - [References](#references)
+  - [Input files and parameters](#input-files-and-parameters-1)
+    - [Demographic history input files [txt file, required]](#demographic-history-input-files-txt-file-required)
+    - [Row number [int, required]](#row-number-int-required)
+    - [Migration list [txt, optional]](#migration-list-txt-optional)
+    - [List of sampled demes   [txt, optional]](#list-of-sampled-demes---txt-optional)
+    - [Time periods and generation times [int, optional]](#time-periods-and-generation-times-int-optional)
+    - [Replicate ID numer [int, optional]](#replicate-id-numer-int-optional)
+    - [Ancestral populations [txt, optional]](#ancestral-populations-txt-optional)
+    - [Output directory [string, optional]](#output-directory-string-optional)
+    - [Printing demography file [bool, optional]](#printing-demography-file-bool-optional)
+    - [Setting random seed number [int, optional]](#setting-random-seed-number-int-optional)
+  - [Running the simulation](#running-the-simulation)
+  - [Output](#output)
+<!-- TOC END -->
+
+
+
 ## Introduction
 
 gridCoal is an efficient spatially explicit coalescent simulation tool (Szep, Trubenova, Csillery 2021) and is a wrapper for the software msprime (Kellher et al. ). It implements a flexible two-dimensional stepping stone model, where the size of demes can change arbitrarily across space and in time, and the migration rate between individual demes can be specified. Under Kimura’s two dimensional stepping stone model (), summary statistics of genetic diversity and divergence between demes can be approximated from coalescence times (Slatkin 1985). Bypassing the simulation of genetic data in a spatially explicit context, combined with the efficiency of msprime. Each gridCoal simulation returns coalescent times between a set of sample pairs, that can be used to calculate summary statistics such as FST or generate isolation by distance patterns. Many simulation repeats (1000-3000) of the same scenario (parameter set) are required to obtain reliable estimates of the statistics.
@@ -12,7 +38,10 @@ Note that approximating summary statistics of genetic diversity and FST from coa
 Main.py is the main python file that is necessary for running the simulations. Python package msprime needs to be installed.
 
 
-## Table of contents
+
+
+## Input files and parameters
+
 
 GridCoal Tutorial.ipynb is a jupyter notebook file that explains input and output files and how to use them.
 
@@ -31,7 +60,7 @@ Examples is a directory, in which complete examples are worked out, together wit
 * Szep, Trubenova, Csillery 2021
 
 
-# GridCoal Tutorial
+
 
 ## Input files and parameters
 
