@@ -2,26 +2,24 @@
 
 ## Table of contents
 
-<!-- TOC START min:1 max:3 link:true asterisk:false update:true -->
-- [gridCoal Tutorial](#gridcoal-tutorial)
-  - [Table of contents](#table-of-contents)
-  - [Introduction](#introduction)
-  - [How to use:](#how-to-use)
-  - [Input files and parameters](#input-files-and-parameters)
-  - [References](#references)
-  - [Input files and parameters](#input-files-and-parameters-1)
-    - [Demographic history input files [txt file, required]](#demographic-history-input-files-txt-file-required)
-    - [Row number [int, required]](#row-number-int-required)
-    - [Migration list [txt, optional]](#migration-list-txt-optional)
-    - [List of sampled demes   [txt, optional]](#list-of-sampled-demes---txt-optional)
-    - [Time periods and generation times [int, optional]](#time-periods-and-generation-times-int-optional)
-    - [Replicate ID numer [int, optional]](#replicate-id-numer-int-optional)
-    - [Ancestral populations [txt, optional]](#ancestral-populations-txt-optional)
-    - [Output directory [string, optional]](#output-directory-string-optional)
-    - [Printing demography file [bool, optional]](#printing-demography-file-bool-optional)
-    - [Setting random seed number [int, optional]](#setting-random-seed-number-int-optional)
-  - [Running the simulation](#running-the-simulation)
-  - [Output](#output)
+<!-- TOC START min:2 max:3 link:true asterisk:false update:true -->
+- [Table of contents](#table-of-contents)
+- [Introduction](#introduction)
+- [How to use](#how-to-use)
+- [References](#references)
+- [Input files and parameters](#input-files-and-parameters)
+  - [Demographic history input files [txt file, required]](#demographic-history-input-files-txt-file-required)
+  - [Row number [int, required]](#row-number-int-required)
+  - [Migration list [txt, optional]](#migration-list-txt-optional)
+  - [List of sampled demes   [txt, optional]](#list-of-sampled-demes---txt-optional)
+  - [Time periods and generation times [int, optional]](#time-periods-and-generation-times-int-optional)
+  - [Replicate ID numer [int, optional]](#replicate-id-numer-int-optional)
+  - [Ancestral populations [txt, optional]](#ancestral-populations-txt-optional)
+  - [Output directory [string, optional]](#output-directory-string-optional)
+  - [Printing demography file [bool, optional]](#printing-demography-file-bool-optional)
+  - [Setting random seed number [int, optional]](#setting-random-seed-number-int-optional)
+- [Running the simulation](#running-the-simulation)
+- [Output](#output)
 <!-- TOC END -->
 
 
@@ -33,14 +31,9 @@ gridCoal is an efficient spatially explicit coalescent simulation tool (Szep, Tr
 Note that approximating summary statistics of genetic diversity and FST from coalescence times holds only when the mutation rate is low, and migration is possible to neighboring demes only (Slatkin 1985). The assumption about the migration to neighboring cells may be a limitation for simulating data for some organisms, such as migrating animals or wind-dispersed plants. Thus, even though long-distance dispersal events could be easily simulated by directly modifying the migration matrix, it is advisable to simulate genetic data in these cases for calculating summary statistics.
 
 
-## How to use:
+## How to use
 
 Main.py is the main python file that is necessary for running the simulations. Python package msprime needs to be installed.
-
-
-
-
-## Input files and parameters
 
 
 GridCoal Tutorial.ipynb is a jupyter notebook file that explains input and output files and how to use them.
