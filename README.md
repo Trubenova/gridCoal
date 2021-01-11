@@ -5,8 +5,8 @@
 <!-- TOC START min:2 max:3 link:true asterisk:false update:true -->
 - [Table of contents](#table-of-contents)
 - [Introduction](#introduction)
+  - [References](#references)
 - [How to use](#how-to-use)
-- [References](#references)
 - [Input files and parameters](#input-files-and-parameters)
   - [Demographic history input files [txt file, required]](#demographic-history-input-files-txt-file-required)
   - [Row number [int, required]](#row-number-int-required)
@@ -30,27 +30,23 @@ gridCoal is an efficient spatially explicit coalescent simulation tool (Szep, Tr
 
 Note that approximating summary statistics of genetic diversity and FST from coalescence times holds only when the mutation rate is low, and migration is possible to neighboring demes only (Slatkin 1985). The assumption about the migration to neighboring cells may be a limitation for simulating data for some organisms, such as migrating animals or wind-dispersed plants. Thus, even though long-distance dispersal events could be easily simulated by directly modifying the migration matrix, it is advisable to simulate genetic data in these cases for calculating summary statistics.
 
-
-## How to use
-
-Main.py is the main python file that is necessary for running the simulations. Python package msprime needs to be installed.
-
-
-GridCoal Tutorial.ipynb is a jupyter notebook file that explains input and output files and how to use them.
-
-AnalysingOutput.ipynb is a jupyter notebook file that allows to analyse outputs of simulation repeats (coalescent times) and calculte Fst as well as to create isolation by distance patterns.
-
-InputFileGenerator.ipynb is a jupyter notebook file that allows to prepare simple inputs for the simulator. Note that this functionality is limited, and is mainly useful for testing purposes.
-
-Examples is a directory, in which complete examples are worked out, together with input files.
-
-## References
+### References
 
 * Kelleher J, Etheridge AM, McVean G (2016) Efficient coalescent simulation and genealogical analysis for large sample sizes.PLoS Computational Biology,12, e1004842
 
 * Slatkin M (1985) Gene #ow in natural populations. Annual Review of Ecology and Systematics,16: 393–430
 
 * Szep, Trubenova, Csillery 2021
+
+## How to use
+
+Main.py is the main python file that is necessary for running the simulations. Python package msprime needs to be installed.
+
+Below is a detailed description of required and optional inputs for gridCoal. A jupyter notebook file, InputFileGenerator.ipynb is present for your convenience, that allows  to prepare simple inputs for the simulator. Note that its functionality is limited, and is mainly useful for testing and tutorial purposes.
+
+Description of output files follows. Another jupyter notebook file, AnalysingOutput.ipynb allows to analyse outputs of simulation repeats (coalescent times) and calculte Fst as well as to create isolation by distance patterns.
+
+Example is a directory, in which a complete example are worked out, together with input files.
 
 
 
