@@ -20,6 +20,7 @@
   - [Setting random seed number [int, optional]](#setting-random-seed-number-int-optional)
 - [Running the simulation](#running-the-simulation)
 - [Output](#output)
+  - [Analysing output files](#analysing-output-files)
 <!-- TOC END -->
 
 
@@ -220,3 +221,11 @@ If --print_debugger is set to True, also detailed demographic history with all p
 
 
 The result of the simulation itself is a square matrix of coalescence times of samples from all sampled demes, saved as <code>OUTPUT_DIR_NAME/CoalTimes${REPLICATE}.txt</code>
+
+### Analysing output files
+
+Jupyter notebook file AnalysingOutput allows to calculate summary statistics from the simulation outputs.
+The original input files used for the simulations, as well as output files with coalescence times are specified in the first cell. The following cells define the function and run them, to calculate and print out:
+* mean coalescence time for samples taken from the same deme ('within deme coalescence time'), as well as from different demes ('between deme coalescence time'), and the total mean coalescence time ('mean total coalescence time').  
+* population wide Fst
+* F* for samples taken from various (Manhattan) distance classes.
