@@ -12,15 +12,15 @@ Then we analyse the outputs, calculating global Fst anf F*.
 ## Generating inputs
 Open jupyter notebook GeneratingInputs.ipynb and define the parameters in the second cell.
 ```python
-rows = 5   #number of rows
-cols = 4   #number of columns
-T = 10 #number of time steps
-gt=2  #generation time
-dt=20 # time between defined time steps
-N=10  #average population size
-mu=0.1 #migration rate between neighbouring demes
-s = 0.5 # s is coverage - fraction of sampled grid cells. Note that using this function may include
-#some that are empty in the input data, which will cause error. Check before submitting for simulations.
+rows = 5    #number of rows
+cols = 4    #number of columns
+T = 10      #number of time steps
+gt = 2        #generation time
+dt = 20       # time between defined time steps
+N = 10        #average population size
+mu = 0.1      #migration rate between neighbouring demes
+s = 0.5     # s is coverage - fraction of sampled grid cells. Note that using this function may include
+            #some that are empty in the input data, which will cause error. Check before submitting for simulations.
 
 batch_name = 'example_simple_exp_'  #prefix used for input data associated with this simulation
 ```
@@ -31,10 +31,10 @@ The next cell generated input files, that are saved as txt files with prefix spe
 
 ```python
 final_map = generate_final_map(rows, cols, N)   #generate final map
-my_demography=generate_lin_increase_data(final_map, T, batch_name)  #generate linear increasing pop sizes leading to final map
-mig_list= generate_migration_list(rows, cols, mu, batch_name)
-sample_list=generate_sample_list(rows, cols,0.5, batch_name)
-ancpop_list=generate_ancestral_pop(rows, cols, batch_name=batch_name )
+my_demography = generate_lin_increase_data(final_map, T, batch_name)  #generate linear increasing pop sizes leading to final map
+mig_list = generate_migration_list(rows, cols, mu, batch_name)
+sample_list = generate_sample_list(rows, cols,0.5, batch_name)
+ancpop_list = generate_ancestral_pop(rows, cols, batch_name=batch_name )
 ```
 Finally, the last cell print out the inputs on the screen.
 
@@ -75,5 +75,3 @@ Run the second cell to import relevant packages and define functions.
 Run the third cell to load the files and create a matrix with mean coalescence times. This step may take a while, if many replicates must be loaded. A file named with the name of the time-containing files with extension MEAN.txt is created.  
 
 Finally, run the fourth cell to calculate mean total coalescence time, mean within deme and between deme coalescence times, Fst and mean coalescence times for samples taken from different (Manhattan) distance classes. A heatmap with diversity (approximated by within deme coalescence times) and isolation by distance plots are created.
-
- 
