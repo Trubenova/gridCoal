@@ -21,7 +21,7 @@ N = 10      # average population size
 mu = 0.1    # migration rate between neighbouring demes
 s = 0.5     # s is coverage - fraction of sampled grid cells. Note that using this function may include
             # some that are empty in the input data, which will cause error. Check before submitting for simulations.
-seed = 10 #initialize random seed if you want
+seed = 10   #initialize random seed if you want
 batch_name = 'example_simple_exp_'  #prefix used for input data associated with this simulation
 ```
 
@@ -45,6 +45,10 @@ Run the simulation after specifying all the necessary input files, in terminal (
 ```
 python3 Main.py -pop example_simple_exp_lin_inc_N_10.txt -row 5 -mig example_simple_exp_mig_list0.1.txt -sam example_simple_exp_sample_list.txt -d 20 -gen 2 -rep 1
 ```
+or, when run on the specific example provided on github
+```
+python3 Main.py -pop Examples/Increasing_population/example_simple_exp_lin_inc_N_10.txt -row 5 -mig Examples/Increasing_population/example_simple_exp_mig_list0.1.txt -sam Examples/Increasing_population/example_simple_exp_sample_list.txt -d 20 -gen 2 -odir Examples/Increasing_population/OUTPUT_DIR -rep 1
+```
 
 You can also specify additional parameters, such as printing out demography debugger by msprime by setting
 ```
@@ -63,10 +67,16 @@ Multiple parallel simulations can be run by:
 ```   
 for i in {1..100} ; do python3 Main.py -pop example_simple_exp_lin_inc_N_10.txt -row 5
 -mig example_simple_exp_mig_list0.1.txt -sam example_simple_exp_sample_list.txt -d 20
--gen 2 -rep $i & done
+-gen 2 -seed 1 -rep $i & done
 ```
 
-All output files are stored in
+```
+for i in {1..100} ; do python3 Main.py -pop Examples/Increasing_population/example_simple_exp_lin_inc_N_10.txt -row 5 -mig Examples/Increasing_population/example_simple_exp_mig_list0.1.txt -sam Examples/Increasing_population/example_simple_exp_sample_list.txt -d 20 -gen 2 -seed 1 -odir Examples/Increasing_population/OUTPUT_DIR  -rep $i & done
+```
+
+
+All output files are stored in specified output directory, or default 'OUTPUT' directory is created. File 'Output.txt' in the output directory contains all the input information used for the simulations, that are identical. Files 'CoalTimesI.txt' contain coalescence times for I-th simulation replicate.   
+
 ## Analysing outputs
 
 Open jupyter notebook AnalysingOutput.ipynb file. Specify the input files, the name of the files containing coalescence times (without the replicate number and txt extension) and their number.
