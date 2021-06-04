@@ -108,4 +108,4 @@ extenden population number: 21
 
 
 output file name: Examples/Increasing_population/OUTPUT_DIR/CoalTimes1.txt
-random seed number: 997907
+random seed number: 1
