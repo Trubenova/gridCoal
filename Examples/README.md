@@ -12,15 +12,15 @@ Then we analyse the outputs, calculating global Fst anf F*.
 ## Generating inputs
 Open jupyter notebook GeneratingInputs.ipynb and define the parameters in the second cell.
 ```python
-rows = 5    #number of rows
-cols = 4    #number of columns
-T = 10      #number of time steps
-gt = 2        #generation time
-dt = 20       # time between defined time steps
-N = 10        #average population size
-mu = 0.1      #migration rate between neighbouring demes
+rows = 5    # number of rows
+cols = 4    # number of columns
+T = 10      # number of time steps
+gt = 2      # generation time
+dt = 20     # time between defined time steps
+N = 10      # average population size
+mu = 0.1    # migration rate between neighbouring demes
 s = 0.5     # s is coverage - fraction of sampled grid cells. Note that using this function may include
-            #some that are empty in the input data, which will cause error. Check before submitting for simulations.
+            # some that are empty in the input data, which will cause error. Check before submitting for simulations.
 
 batch_name = 'example_simple_exp_'  #prefix used for input data associated with this simulation
 ```
