@@ -72,7 +72,9 @@ for i in {1..100} ; do python3 Main.py -pop example_simple_exp_lin_inc_N_10.txt 
 
 ```
 for i in {1..100} ; do python3 Main.py -pop Examples/Increasing_population/example_simple_exp_lin_inc_N_10.txt
--row 5 -mig Examples/Increasing_population/example_simple_exp_mig_list0.1.txt -sam Examples/Increasing_population/example_simple_exp_sample_list.txt -d 20 -gen 2 -seed 1 -odir Examples/Increasing_population/OUTPUT_DIR  -rep $i & done
+-row 5 -mig Examples/Increasing_population/example_simple_exp_mig_list0.1.txt 
+-sam Examples/Increasing_population/example_simple_exp_sample_list.txt -d 20 -gen 2 -seed 1
+-odir Examples/Increasing_population/OUTPUT_DIR  -rep $i & done
 ```
 
 
