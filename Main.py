@@ -546,7 +546,7 @@ def extract_results(sim_results, subpops, file1):
                                                                                                                     subpops[j][0])) / 4
             else:
                 result[i, j] = sime_res_simple.tmrca(subpops[i][0], subpops[j][1])
-
+    print ('this is file name',file1)
     np.savetxt(file1, result)
 
 
@@ -580,7 +580,7 @@ def run_gridcoal():
                              anc_pop_sizes,
                              ancpop_list)
 
-    file1 = str(dir_name+'/'+dir_name+'CoalTimes'+str(serial)+'.txt')
+    file1 = str(dir_name+'/'+'CoalTimes'+str(serial)+'.txt')
 
     if not os.path.exists(dir_name):
         os.mkdir(dir_name)
@@ -588,7 +588,7 @@ def run_gridcoal():
 
 
     if serial ==1:
-        out_file = open(dir_name+'/'+dir_name+'Output.txt','w')
+        out_file = open(dir_name+'/'+'Output.txt','w')
         out_file.write(
 """
 INPUT FILES
