@@ -94,9 +94,14 @@ def parse_input_files(parser):
                         help="time interval between steps, default 10")
     # This gives delta_t- time between two known points
 
-    parser.add_argument("--replicate", "-rep", type=int, dest="serial", default=1,
-                        help="serial number")
+    parser.add_argument("--serial_ID", "-ser", type=int, dest="serial", default=1,
+                        help="serial ID")
     # Assignes simulation serial number so it is saved into a different output file.
+
+    parser.add_argument("--replicate", "-rep", type=int, dest="num_of_replicates", default=1,
+                        help="number of replicates")
+    # Assignes simulation serial number so it is saved into a different output file.
+
 
     parser.add_argument(
         "--print_debugger",
@@ -120,6 +125,7 @@ def parse_input_files(parser):
     mig_file = args.migr_mat_file
     demography_file = args.tree_nums_file
     serial = args.serial
+    num_of_replicates=args.num_of_replicates
     sample_list = args.sample_coords_file
     delta_t = args.delta_t  # timestep
     gen_time = args.gen_time
@@ -132,7 +138,7 @@ def parse_input_files(parser):
     if seed_no == 0:
         seed_no = np.random.randint(1000000)
 
-    return args, mig_file, demography_file, serial, delta_t, gen_time, sample_list, anc_pop_sizes, ancpop_list, print_deb, output_dir, seed_no
+    return args, mig_file, demography_file, serial, delta_t, gen_time, sample_list, anc_pop_sizes, ancpop_list, print_deb, output_dir, seed_no, num_of_replicates
 
 def sample_all_cells(tree_num):
     today=tree_num[-1, :]
@@ -544,7 +550,7 @@ def extract_results(sim_results, subpops, file1):
                                                                                                                     subpops[j][0])) / 4
             else:
                 result[i, j] = sime_res_simple.tmrca(subpops[i][0], subpops[j][1])
-    print (result)
+    #print (result)
     np.savetxt(file1, result)
 
 
@@ -559,7 +565,7 @@ def run_gridcoal():
 
     parser = argparse.ArgumentParser(description=description)
     [args, mig_file, demography_file, serial, delta_t, gen_time, sample_list, anc_pop_sizes,
-        ancpop_list, print_deb, dir_name, seed_no] = parse_input_files(parser)
+        ancpop_list, print_deb, dir_name, seed_no, num_of_replicates] = parse_input_files(parser)
 
     np.random.seed(seed_no)
 
@@ -691,20 +697,22 @@ random seed number: %s
             #sys.stdout = orig_stdout
         out_file.close()
 
-    sim_results = msprime.simulate(
-        population_configurations=population_configurations,
-        demographic_events=demographic_events,
-        migration_matrix=backw_mig_mat,
-        random_seed=seed_no)
+    for i in range(num_of_replicates):
+        file_name = str(dir_name+'/'+'CoalTimes'+str(serial)+'Rep'+str(i)+'.txt')
+        sim_results = msprime.simulate(
+            population_configurations=population_configurations,
+            demographic_events=demographic_events,
+            migration_matrix=backw_mig_mat, 
+            random_seed=seed_no)
 
     ########################CALCULATE EXPECTED PAIRWISE COALESCENCE TIMES#####
     ##########################################################################
-    # this is necessary for results analysis
-    subpops = define_subpopulations(ndip)
-    extract_results(sim_results, subpops, file1)
+        # this is necessary for results analysis
+        subpops = define_subpopulations(ndip)
+        extract_results(sim_results, subpops, file_name)
 
-    end_t = time.time()
-    #print('Simulation ended in time', end_t - start_t, 'seconds')
+        end_t = time.time()
+        #print('Simulation',i, 'ended in time', end_t - start_t, 'seconds')
 
 
 ##########################################################################
