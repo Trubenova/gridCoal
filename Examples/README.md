@@ -24,8 +24,8 @@ s  = 0.5     # s is coverage - fraction of sampled grid cells. Note that using t
 seed = 10   #initialize random seed if you want
 dir_name='Examples/Static_population/' #set name of the directory
 if not os.path.exists(dir_name):
-    os.mkdir(dir_name)
-    print("Directory " , dir_name ,  " Created ")  # the directory does nto exist, it will be created.
+    os.makedirs(dir_name)
+    print("Directory " , dir_name ,  " Created ")
 batch_name = dir_name+'example_simple_exp_'  #prefix used for input data associated with this simulation
 ```
 
