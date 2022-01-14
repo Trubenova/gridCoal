@@ -119,7 +119,7 @@ A  list of demes (indexes, starting at 0) from which the samples are taken can b
 These cells must not be empty at the final time point (presence), but could be empty in the past.
 Two samples are taken from each indicated deme.
 
-If no file is supplied, all samples that are not empty at presence are sampled.
+If no file is supplied, all samples that are not empty at presence are sampled, and a Sample_list.txt file is created in the output directory. 
 
 #### Example
 SampleList.txt:
