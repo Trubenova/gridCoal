@@ -51,7 +51,7 @@ my_samples=my_samples.astype(int)
 mean_coal_times=get_mean_times(time_files, file_number)
 ```
 
-The following code snippets are used to create various figures. 
+Run the followinf cells to calculate mean total coalescence time, mean within deme and between deme coalescence times, Fst and mean coalescence times for samples taken from different (Manhattan) distance classes. A heatmap with diversity (approximated by within deme coalescence times) and isolation by distance plots are created. The following code snippets are used to create various figures. 
 
 ### Plotting tree distribution (final - present - population sizes)
 ```
@@ -73,38 +73,40 @@ plot_within_ctime(my_samples,cols, rows, mean_coal_times)
 plt.savefig(prefix+'CoalTimesMap.png')
 ```
 ### Plotting isolation by distance patterns
-
-
-
 ```
-name=prefix
-plt.figure(figsize=(10.6,4.8), dpi=80)
-[T,map_size]=np.shape(my_demography)
-cols=int(map_size/rows)
-
-final_map_2D=np.reshape(my_demography[-1,:], [rows, cols])
-plt.pcolor(final_map_2D)
-plt.colorbar()
-plt.savefig(name+'Demography.png')
-plt.show()
-
-[mean_total, mean_within, mean_between] = get_mean_partial_times(mean_coal_times) 
-print (mean_total, mean_within, mean_between)
-my_fst=calculate_fst(mean_total, mean_within)
-plt.figure(figsize=(10.6,4.8), dpi=80)
-plot_within_ctime(my_samples,cols, rows, mean_coal_times)
-plt.savefig(name+'CoalTimesMap.png')
-
 plt.figure(figsize=(10.6,4.8), dpi=80)
 box_means=make_ibd_plots(my_samples, mean_coal_times, rows, cols)
-plt.savefig(name+'IBD.png')
-print ('Mean total coalescence time', mean_total)
-print ('Mean within deme coalescence time', mean_within)
-print ('Mean between deme coalescence time', mean_between)
-print ('Fst', my_fst)
-print ('Mean times in distance classes', box_means)
+plt.savefig(prefix+'IBD.png')
+
+```
+### Plotting Spearman rank correlation 
+Finally, by using the last two cells, you can correlate the calculated coalescent times with historical demography
+
+
+```
+rows=24  # specify the number of rows that were used to run the simulation
+file_number=50 # specify the number of output files that you want to analyse. Files from 0 to the specified number will be analyzed. 
+plt.figure(figsize=(10.6,4.8), dpi=80)
+
+demography_file='LPXBernSims/TreeDataStep10Div1000.txt'
+prefix='LPXBernSims/Scenario3Div1000/'
+sample_file=prefix+'OUTPUT_DIR/Sample_list.txt'
+my_samples=np.loadtxt(sample_file)
+my_samples=my_samples.astype(int)
+mean_coal_times=np.loadtxt(prefix+'OUTPUT_DIR/CoalTimes1RepMEAN.txt')
+within_coal_times=mean_coal_times.diagonal()
+coal_time_map=np.zeros([rows*cols])
+coal_time_map[my_samples]=within_coal_times
+#np.savetxt(prefix+'coal_times.txt', coal_time_map)
+
+cov1000=show_covariance(my_demography, coal_time_map)
+plt.plot(t, cov1000)
+
+plt.xlabel('time', size=18)
+plt.ylabel('Spearman Rank Correlation', size=18)
+plt.xticks(fontsize= 15)
+plt.yticks(fontsize= 15)
+#plt.savefig('LPXBernSims/Scen3_SRC2.png')
+plt.show()
 ```
 
-
-
-Finally, run the fourth cell to calculate mean total coalescence time, mean within deme and between deme coalescence times, Fst and mean coalescence times for samples taken from different (Manhattan) distance classes. A heatmap with diversity (approximated by within deme coalescence times) and isolation by distance plots are created.
