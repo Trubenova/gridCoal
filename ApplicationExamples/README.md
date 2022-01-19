@@ -80,7 +80,7 @@ plt.savefig(prefix+'IBD.png')
 
 ```
 ### Plotting Spearman rank correlation 
-Finally, by using the last two cells, you can correlate the calculated coalescent times with historical demography
+Finally, by using the last two cells, you can correlate the calculated coalescent times with historical demography. This cell will create data file containing all mean within deme coalescent times. 
 
 
 ```
@@ -97,7 +97,7 @@ mean_coal_times=np.loadtxt(prefix+'OUTPUT_DIR/CoalTimes1RepMEAN.txt')
 within_coal_times=mean_coal_times.diagonal()
 coal_time_map=np.zeros([rows*cols])
 coal_time_map[my_samples]=within_coal_times
-#np.savetxt(prefix+'coal_times.txt', coal_time_map)
+np.savetxt(prefix+'coal_times.txt', coal_time_map)
 
 cov1000=show_covariance(my_demography, coal_time_map)
 plt.plot(t, cov1000)
@@ -106,7 +106,7 @@ plt.xlabel('time', size=18)
 plt.ylabel('Spearman Rank Correlation', size=18)
 plt.xticks(fontsize= 15)
 plt.yticks(fontsize= 15)
-#plt.savefig('LPXBernSims/Scen3_SRC2.png')
+plt.savefig('LPXBernSims/Scen3_SRC2.png')
 plt.show()
 ```
 
