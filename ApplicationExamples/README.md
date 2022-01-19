@@ -3,6 +3,14 @@
 ## Input data
 
 
+The demographic history of silver fir in the past 22,000 years was obtained from the LPX-Bern dynamic global vegetation model with a resolution of 1 x 1 degree.  The output of LPX-Bern is the foliar projective cover (FPC), which is the fraction of a grid cell that is covered by silver fir. 
+
+We estimated the number of trees (N) from FPC assuming that a mature tree occupies 40 m x m and effective population size is Ne= c x N where c is a scaling factor (0.0001, 0.001,0.01,0.1). 
+Furthermore, we created 3 types of data: a) static and homogeneous in space (in the predicted fir range), b) static in time but based on the final distribution of silver fir as predicted by the LPX Bern model,  and c) dynamic, based on the population sizes and distributions predicted by the LPX Bern model output data. 
+Input data is represented in s form of 221 time points spaced 100 years (4 generations) apart. Each time point captures N in 1272 demes (53 x 24 grid). 
+Input files are called TreeData[scenario]Div[1/scaling].txt. 
+
+
 ## Running the simulations
 Run the simulation after specifying all the necessary input files, in terminal (on Mac) for instance as
 ```
