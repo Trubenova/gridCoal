@@ -75,37 +75,18 @@ for i in {1..5} ; do  time python3 Main.py -pop Examples/GridSize1/example_stati
 ```
 
 
-```
 or in series, for timing:
 ```
 time for i in {1..100} ; do python3 Main.py -pop Examples/Increasing_population/example_simple_exp_lin_inc_N_10.txt -row 5 -mig Examples/Increasing_population/example_simple_exp_mig_list0.1.txt -sam Examples/Increasing_population/example_simple_exp_sample_list.txt -d 20 -gen 2 -seed 1 -odir Examples/Increasing_population/OUTPUT_DIR  -rep $i done
 ```
 
-time for i in {1..100} ; do python3 Main.py -pop Examples/Static_population/example_static_static_N_10.txt -row 5 -mig Examples/Static_population/example_static_mig_list0.1.txt -sam Examples/Static_population/example_static_sample_list.txt -d 20 -gen 2 -seed 1 -odir Examples/Static_population/OUTPUT_DIR  -rep $i; done
-```
-time for i in {1..100} ; do python3 Main.py -pop Examples/Static_populationL3x/example_static_static_N_100.txt -row 15 -mig Examples/Static_populationL3x/example_static_mig_list0.1.txt -sam Examples/Static_populationL3x/example_static_sample_list.txt -d 20 -gen 2 -seed 1 -odir Examples/Static_populationL3x/OUTPUT_DIR  -rep $i; done
-```
-
-for j in {1..5} ; do time for i in {1..100} ; do python3 Main.py -pop Examples/Static_populationMig001/example_static_static_N_100.txt -row 15 -mig Examples/SpeedTest/example_static_mig_list0.001.txt -sam Examples/SpeedTest/example_static_sample_list.txt -d 20 -gen 2 -seed 1 -odir Examples/SpeedTest/OUTPUT_DIR  -rep $i; done; done
-
-
-
-for j in {1..5} ; do time for i in {1..100} ; do python3 Main.py -pop Examples/SpeedTest/example_static_static_N_100.txt -row 15 -mig Examples/Static_populationL3xDt200/example_static_mig_list0.1.txt -sam Examples/Static_populationL3xDt200/example_static_sample_list.txt -d 200 -gen 2 -seed 1 -odir Examples/Static_populationL3xDt200/OUTPUT_DIR  -rep $i; done; done
-
-for j in {1..5} ; do time for i in {1..100} ; do python3 Main.py -pop Examples/Static_populationL5x/example_static_static_N_100.txt -row 25 -mig Examples/Static_populationL5x/example_static_mig_list0.1.txt -sam Examples/Static_populationL5x/example_static_sample_list.txt -d 20 -gen 2 -seed 1 -odir Examples/Static_populationL5x/OUTPUT_DIR  -rep $i; done; done
-
-
-for j in {1..5} ; do time for i in {1..1} ; do python3 Main.py -pop Examples/Splatche1/example_static_static_N_0.23529.txt -row 25 -mig Examples/Splatche1/example_static_mig_list0.1.txt -sam Examples/Splatche1/example_static_sample_list.txt -d 20 -gen 2 -seed 1 -odir Examples/Splatche1/OUTPUT_DIR  -rep $i; done; done
-
-for j in {1..5} ; do time for i in {1..1} ; do  Applications/pypy3.7-v7.3.5-osx64/bin/pypy3 Main.py -pop Examples/Splatche1/example_static_static_N_0.23529.txt -row 25 -mig Examples/Splatche1/example_static_mig_list0.1.txt -sam Examples/Splatche1/example_static_sample_list.txt -d 20 -gen 2 -seed 1 -odir Examples/Splatche1/OUTPUT_DIR  -rep $i; done; done
-
-
-
-for j in {1..5} ; do time for i in {1..1} ; do ./Main  -pop Examples/Splatche1/example_static_static_N_0.23529.txt -row 25 -mig Examples/Splatche1/example_static_mig_list0.1.txt -sam Examples/Splatche1/example_static_sample_list.txt -d 20 -gen 2 -seed 1 -odir Examples/Splatche1/OUTPUT_DIR  -rep $i; done; done
-
 All output files are stored in specified output directory, or default 'OUTPUT' directory is created. File 'Output.txt' in the output directory contains all the input information used for the simulations, that are identical. Files 'CoalTimesI.txt' contain coalescence times for I-th simulation replicate.   
 
+
 ## Analysing outputs
+
+
+
 
 Open jupyter notebook AnalysingOutput.ipynb file. Specify the input files, the name of the files containing coalescence times (without the replicate number and txt extension) and their number.
 
