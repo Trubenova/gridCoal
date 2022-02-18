@@ -52,14 +52,13 @@ dynamic global vegetation model.
 
 ## Input files and parameters
 
-GridCoal requires following inputs:
+In order to run the simulations, it is necessary to define the following input files and parameters.
 
 ### Demographic history input files [txt file, required]
 
+The demographic history of the collection of demes distributed on a grid is represented by a matrix of size $T \times n$, where $T$ is the number of time points at which one wishes to define the population sizes and $n$ is the number of grid cells. The matrix contains the population sizes of the grid cells at given time points. Each row is the flattened two dimensional grid, indexed from $0$ to $n-1$, defining the sizes of the subpopulations. The first line is the oldest time point. 
 
-The demographic history of the collection of demes distributed on a grid is represented by matrix of size $T \times n$ (T rows of n numbers),  $T$ being the number of time points one wishes to define the population sizes at, and $n$ being the number of grid cells. The matrix contains the population sizes of the grid cells at given time points. Each row is the flattened two-dimensional grid, indexed from $0$ to $n-1$, defining the sizes of the demes. The first line corresponds to the oldest time point.
-
-Empty demes, i.e. zero population sizes, are not allowed in msprime, thereby in gridCoal. To allow for the possibility that populations can go extinct and get recolonized, even repeatedly, upon loading the demography input file we replace all empty demes with population size  $10^{-10}$.
+In \textit{msprime}, a population is not allowed to have size $0$. In our case, however, we do not want to exclude the possibility that populations become extinct and the demes are subsequently recolonised, even repeatedly. We therefore set populations with size 0 as $10^{-10}$. This is done automatically -- before the simulations start, the program replaces any $0$ in the input data with $10^{-10}$. 
 
 #### Example
 InputData.txt:
@@ -76,17 +75,16 @@ or
 
 
 ### Row number [int, required]
-The number of rows in the grid. The number of columns is calculated from the number of columns in the Demographic history input file. The total number of demes must be divisible by the row number.
-The row number together with the demographic history file defines the shape of the spatial map.
+This number, together with the demographic history file, defines the shape of the spatial map. It must be an integer. Additionally, the size of the grid (number of all cells -- row length of the demographic history input file) must be divisible by the row number. 
 
 Enter as: <br>
  <code>--row_number 5 </code> or <code>-row 5 </code>
 
 ### Migration list [txt, optional]
+A migration list indicating the migration rate between two connected cells is used to build a migration matrix, and to calculate backward migration during the simulation. Even if two cells are connected by an edge, if the migration is not specified in the list, it is considered 0. The migration list must be formatted as lines of three values: source cell i (integer), target cell j (integer), and migration rate m_{ij} from i to j (positive float between 0 and 1). Note that if migration involves the exchange of migrants, both directions need to be specified.
 
-A migration file specifies the migration rate between pairs of connected cells in a list, and to calculate backward migration during a simulation. Even if two cells are connected by an edge, if the migration is not specified in this file, it is considered 0. Format as lines of triples: Source cell   (integer), target cell   (integer), migration rate  (positive float between 0 and 1). Note that if migration exchange migrants both ways, both directions need to be specified, by two lines of triples.
-
-If no file, but a single number m (float) is specified, a migration matrix is automatically generated, assuming that migration occurs between all adjacent cells symmetrically with rate m (i.e. the classical stepping stone model). By default migration rate is 0.1.![image.png](attachment:image.png)
+If a file is not specified but rather a single number m (float) is supplied, a migration matrix is generated in which migration is assumed to occur between adjacent cells symmetrically with rate m.
+If no value is suplied, the default migration rate is 0.1.
 
 #### Example
 MigrationList.txt:
@@ -114,10 +112,13 @@ or
 
 ### List of sampled demes   [txt, optional]
 A  list of demes (indexes, starting at 0) from which the samples are taken can be specified.
-These cells must not be empty at the final time point (presence), but could be empty in the past.
-Two samples are taken from each indicated deme.
+hese cells must not be empty at the final time point (present), but could be empty in the past. 
+For efficiency, two samples are taken from each sampled deme. 
 
-If no file is supplied, all samples that are not empty at presence are sampled, and a Sample_list.txt file is created in the output directory. 
+If only a number (float, <1) is supplied, random, non-empty cells will be sampled, with the number representing the sampled fraction.  
+If no file is supplied, all demes that are not empty at presence are sampled, and a Sample_list.txt file is created in the output directory. 
+
+
 
 #### Example
 SampleList.txt:
@@ -131,24 +132,29 @@ Enter as: <br>
 
 ### Time periods and generation times [int, optional]
 
-Time between two time steps, denoted <i>dt</i>, is given in arbitrary time units (year, months, days, minutes). Time is measured in generations in <i>msprime</i>, therefore we need to specify the generation time of the population at hand. We define the generation time as the time at which the species comes to a reproductive age in same units, as dt.  Timing of demographic events (into the same units) is re-calculated by dividing the time of events specified in demography input files by the generation time of the simulated organism in same units.   
+The amount of time between two time points, denoted <i>dt</i>, is given in arbitrary time units (years, months, days, minutes). 
 
-Be default, generation time is set to one, and time between two supplied data points is defined as ten.
+Time is measured in generations in <i>msprime</i>, and we therefore need to specify the generation time of the population at hand. We define the generation time, dt, as the time it takes for a species to reach a reproductive age, expressed in the same units as other supplied times. The timing of demographic events (expressed in the same units) is re-calculated by dividing the time point of events specified in demography input files by the generation time of the simulated organism expressed in the same units. Therefore, it is possible to run the simulations for any organism with an arbitrary generation time, from bacterial populations to trees. 
+
+By default, generation time is set to 1, and the time between two supplied data points is set at 10.
+
 To supply different values, enter as: <br>
 <code>-dt 100 -gen 25</code>
 or
 <code>--delta_t 100 --generation_time 25</code>
 
+### Ancestral populations [txt, optional]
+
+At the point in time beyond which the demography is unknown, all lineages are merged into spatially non-explicit ancestral populations where they follow the standard coalescence process. We assume either a single or multiple panmictic ancestral populations with specified sizes and a very low rate of migration between them ($10^{-8}$). Furthermore, it is necessary to specify which of the cells originate in each ancestral population.
+
+A list determining the origin of each cell can be supplied as a txt file with n (number of all cells) lines. If no file is supplied, all cells are expected to originate in a single spatially non-explicit population. 
+The size of the ancestral populations can be set, with the default as 1. 
 
 ### Replicate ID numer [int, optional]
 Replicate ID number can be suplied specifying the simulation run and the output file. Default value is 1. If value is 1, log file with all input files and their values is created. When running multiple simulations in parallel, different replicate ID numbers need to be specified to avoid overwriting the output files.
 
 Enter as: <br>
 <code>--replicate 7</code> or <code>-rep 7</code>
-
-### Ancestral populations [txt, optional]
-
-At the time point, beyond which the demography is unknown or ignored, all lineages are merged into one or more spatially non-explicit panmictic ancestral populations that follow the standard coalescent process. Multiple ancestral populations allow users to define ancestral populations with specified sizes and migration between them ($10^{-8}$). Furthermore, users can specify which of cells originate from which ancestral population. A list determining the origin of each cell can be supplied as a txt file with n (number of all cells) lines. If no file is supplied, all cells are expected to originate from a single ancestral population. The default size of the ancestral populations is one.
 
 
 ### Output directory [string, optional]
@@ -161,7 +167,8 @@ or
 
 ### Printing demography file [bool, optional]
 
-Option that allows users printing out the detailed demography debugger file supplied by msprime. Replicate number must be set to one to use this option. This allows to start simultaneous runs of many simulations, with only one debugger file (identical for all simulations) created.
+
+This option can be used to print a detailed demography debugger file, supplied by <i>msprime</i>. The replicate number must be set to 1. This makes it possible to simultaneously run many simulations with only one debugger file (identical for all).
 
 Enter as: <br>
 <code>--print_debugger BOOL</code>
@@ -170,7 +177,8 @@ or
 
 ### Setting random seed number [int, optional]
 
-This option allows reproducing the same simulation.
+Finally, it is possible to set a <i>random seed number</i>, which makes it possible to reproduce a given simulation. 
+
 Enter as: <br>
 <code>--set_seed 19</code>
 or
