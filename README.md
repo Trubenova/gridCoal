@@ -235,3 +235,4 @@ The original input files used for the simulations, as well as output files with 
 * mean coalescence time for samples taken from the same deme ('within deme coalescence time'), as well as from different demes ('between deme coalescence time'), and the total mean coalescence time ('mean total coalescence time').  
 * population wide Fst
 * F* for samples taken from various (Manhattan) distance classes.
+Furthermore, Spearman Rank correlation between mean coalescence times and population demography in the past can be calculated, indicating which time points (e.d. near or distant past) are correlated with the current diversity the most. Note that in order to do this analysis, the whole map (all demes that are not empty in the final point) must be sampled. 
