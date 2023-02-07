@@ -133,11 +133,7 @@ def parse_input_files(parser):
     ancpop_list = args.ancpop_list
     print_deb = args.print_deb
     output_dir=args.basedir
-
     seed_no=args.set_seed
-    if seed_no == 0:
-        seed_no = np.random.randint(1000000)
-
     return args, mig_file, demography_file, serial, delta_t, gen_time, sample_list, anc_pop_sizes, ancpop_list, print_deb, output_dir, seed_no, num_of_replicates
 
 def sample_all_cells(tree_num):
@@ -167,7 +163,7 @@ def generate_migration_list(rows, cols, m):
     m_list=np.array(m_list)
     return m_list
 
-def read_input_data(args, mig_file, demography_file, sample_list, anc_pop_sizes, ancpop_list):
+def read_input_data(args, mig_file, demography_file, sample_list, anc_pop_sizes, ancpop_list, dir_name):
     """Reads input data from txt files and returns them in variables."""
 
     tree_num = np.loadtxt("{}".format(demography_file))
@@ -201,6 +197,13 @@ def read_input_data(args, mig_file, demography_file, sample_list, anc_pop_sizes,
     if sample_list == 'nan':
         sampled_demes = sample_all_cells(tree_num)
         print ('sampling')
+        if not os.path.exists(dir_name):
+            os.makedirs(dir_name)
+            print("Directory " , dir_name ,  " Created ")
+        
+        
+        
+        np.savetxt(dir_name+'/'+'Sample_list.txt',sampled_demes,  fmt='%1d', delimiter='\t')
     else:
         #print ('sl', sample_list)
         sampled_demes = np.loadtxt("{}".format(sample_list), dtype='int')
@@ -582,12 +585,12 @@ def run_gridcoal():
                              demography_file,
                              sample_list,
                              anc_pop_sizes,
-                             ancpop_list)
+                             ancpop_list, dir_name)
 
     file1 = str(dir_name+'/'+'CoalTimes'+str(serial)+'.txt')
 
     if not os.path.exists(dir_name):
-        os.mkdir(dir_name)
+        os.makedirs(dir_name)
         print("Directory " , dir_name ,  " Created ")
 
 
@@ -698,12 +701,18 @@ random seed number: %s
         out_file.close()
 
     for i in range(num_of_replicates):
+        
         file_name = str(dir_name+'/'+'CoalTimes'+str(serial)+'Rep'+str(i)+'.txt')
+        if seed_no == 0:
+            seed_no_act = np.random.randint(1000000)
+        else:
+            seed_no_act = seed_no
+
         sim_results = msprime.simulate(
             population_configurations=population_configurations,
             demographic_events=demographic_events,
             migration_matrix=backw_mig_mat, 
-            random_seed=seed_no)
+            random_seed=seed_no_act)
 
     ########################CALCULATE EXPECTED PAIRWISE COALESCENCE TIMES#####
     ##########################################################################
